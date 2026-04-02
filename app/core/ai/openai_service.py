@@ -33,6 +33,8 @@ class OpenAIService(AIService):
         # 兼容不同 AI 服务商的 API 路径
         base = self.base_url.rstrip("/")
         if "minimaxi" in base:
+            # MiniMax: 去掉 /anthropic，用 /v1/chat/completions
+            base = base.replace("/anthropic", "").rstrip("/")
             url = f"{base}/v1/chat/completions"
         elif "bigmodel" in base:
             url = f"{base}/api/paas/v4/chat/completions"
