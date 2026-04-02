@@ -1,0 +1,476 @@
+{
+  "version": "1.0.0",
+  "lastScanned": 1775093344367,
+  "projectRoot": "/Users/zhanzhicai/Desktop/py/pity/backend",
+  "techStack": {
+    "languages": [
+      {
+        "name": "Python",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "requirements.txt"
+        ]
+      }
+    ],
+    "frameworks": [],
+    "packageManager": "pip",
+    "runtime": null
+  },
+  "build": {
+    "buildCommand": null,
+    "testCommand": null,
+    "lintCommand": null,
+    "devCommand": null,
+    "scripts": {}
+  },
+  "conventions": {
+    "namingStyle": "snake_case",
+    "importStyle": null,
+    "testPattern": null,
+    "fileOrganization": null
+  },
+  "structure": {
+    "isMonorepo": false,
+    "workspaces": [],
+    "mainDirectories": [
+      "app",
+      "docs"
+    ],
+    "gitBranches": null
+  },
+  "customNotes": [],
+  "directoryMap": {
+    "__pycache__": {
+      "path": "__pycache__",
+      "purpose": null,
+      "fileCount": 1,
+      "lastAccessed": 1775093344329,
+      "keyFiles": [
+        "config.cpython-313.pyc"
+      ]
+    },
+    "alembic": {
+      "path": "alembic",
+      "purpose": null,
+      "fileCount": 3,
+      "lastAccessed": 1775093344329,
+      "keyFiles": [
+        "README",
+        "env.py",
+        "script.py.mako"
+      ]
+    },
+    "app": {
+      "path": "app",
+      "purpose": "Application code",
+      "fileCount": 2,
+      "lastAccessed": 1775093344330,
+      "keyFiles": [
+        "__init__.py"
+      ]
+    },
+    "conf": {
+      "path": "conf",
+      "purpose": null,
+      "fileCount": 1,
+      "lastAccessed": 1775093344331,
+      "keyFiles": [
+        "dev.env"
+      ]
+    },
+    "docs": {
+      "path": "docs",
+      "purpose": "Documentation",
+      "fileCount": 4,
+      "lastAccessed": 1775093344332,
+      "keyFiles": [
+        "404.html",
+        "index.html",
+        "umi.css",
+        "umi.js"
+      ]
+    },
+    "logs": {
+      "path": "logs",
+      "purpose": null,
+      "fileCount": 3,
+      "lastAccessed": 1775093344332,
+      "keyFiles": [
+        "pity_error.log",
+        "pity_info.log"
+      ]
+    },
+    "ops": {
+      "path": "ops",
+      "purpose": null,
+      "fileCount": 4,
+      "lastAccessed": 1775093344333,
+      "keyFiles": [
+        "dev.env.ops",
+        "docker-compose.yaml",
+        "dockerfile",
+        "supervisor.conf"
+      ]
+    },
+    "pity_proxy": {
+      "path": "pity_proxy",
+      "purpose": null,
+      "fileCount": 3,
+      "lastAccessed": 1775093344333,
+      "keyFiles": [
+        "__init__.py",
+        "mock.py",
+        "record.py"
+      ]
+    },
+    "statics": {
+      "path": "statics",
+      "purpose": null,
+      "fileCount": 107,
+      "lastAccessed": 1775093344334,
+      "keyFiles": [
+        "1001.71191389.async.js",
+        "1465.3daba643.async.js",
+        "1659.b0337cf7.async.js",
+        "171.60450d6b.async.js",
+        "2051.9aa837fe.async.js"
+      ]
+    },
+    "templates": {
+      "path": "templates",
+      "purpose": null,
+      "fileCount": 2,
+      "lastAccessed": 1775093344334,
+      "keyFiles": [
+        "report.html",
+        "reset_password.html"
+      ]
+    },
+    "app/middleware": {
+      "path": "app/middleware",
+      "purpose": "Middleware",
+      "fileCount": 6,
+      "lastAccessed": 1775093344335,
+      "keyFiles": [
+        "AsyncHttpClient.py",
+        "AsyncHttpClientTest.py",
+        "GrpcClient.py"
+      ]
+    },
+    "app/models": {
+      "path": "app/models",
+      "purpose": "Data models",
+      "fileCount": 25,
+      "lastAccessed": 1775093344335,
+      "keyFiles": [
+        "__init__.py",
+        "address.py",
+        "basic.py"
+      ]
+    }
+  },
+  "hotPaths": [
+    {
+      "path": "main.py",
+      "accessCount": 22,
+      "lastAccessed": 1775145070049,
+      "type": "file"
+    },
+    {
+      "path": "config.py",
+      "accessCount": 22,
+      "lastAccessed": 1775145595430,
+      "type": "file"
+    },
+    {
+      "path": "CLAUDE.md",
+      "accessCount": 20,
+      "lastAccessed": 1775146021507,
+      "type": "file"
+    },
+    {
+      "path": "",
+      "accessCount": 12,
+      "lastAccessed": 1775140182889,
+      "type": "directory"
+    },
+    {
+      "path": "app/models/basic.py",
+      "accessCount": 7,
+      "lastAccessed": 1775132026300,
+      "type": "file"
+    },
+    {
+      "path": "app/models/__init__.py",
+      "accessCount": 7,
+      "lastAccessed": 1775139234006,
+      "type": "file"
+    },
+    {
+      "path": "app/middleware/RedisManager.py",
+      "accessCount": 6,
+      "lastAccessed": 1775112466456,
+      "type": "file"
+    },
+    {
+      "path": "app/__init__.py",
+      "accessCount": 6,
+      "lastAccessed": 1775132270574,
+      "type": "file"
+    },
+    {
+      "path": "app/schema/testcase_schema.py",
+      "accessCount": 5,
+      "lastAccessed": 1775147501599,
+      "type": "file"
+    },
+    {
+      "path": "app/routers/scheduler/scheduler.py",
+      "accessCount": 4,
+      "lastAccessed": 1775131269283,
+      "type": "file"
+    },
+    {
+      "path": "app/models/scheduler.py",
+      "accessCount": 4,
+      "lastAccessed": 1775131884536,
+      "type": "file"
+    },
+    {
+      "path": "app/crud/__init__.py",
+      "accessCount": 4,
+      "lastAccessed": 1775132049389,
+      "type": "file"
+    },
+    {
+      "path": "app/core/executor.py",
+      "accessCount": 4,
+      "lastAccessed": 1775140161176,
+      "type": "file"
+    },
+    {
+      "path": "app/schema",
+      "accessCount": 4,
+      "lastAccessed": 1775142148085,
+      "type": "directory"
+    },
+    {
+      "path": "app",
+      "accessCount": 4,
+      "lastAccessed": 1775142167112,
+      "type": "directory"
+    },
+    {
+      "path": "app/routers",
+      "accessCount": 4,
+      "lastAccessed": 1775142178083,
+      "type": "directory"
+    },
+    {
+      "path": "app/utils/scheduler.py",
+      "accessCount": 3,
+      "lastAccessed": 1775130836786,
+      "type": "file"
+    },
+    {
+      "path": "requirements.txt",
+      "accessCount": 3,
+      "lastAccessed": 1775132739902,
+      "type": "file"
+    },
+    {
+      "path": "conf/dev.env",
+      "accessCount": 3,
+      "lastAccessed": 1775140833067,
+      "type": "file"
+    },
+    {
+      "path": "app/routers/__init__.py",
+      "accessCount": 3,
+      "lastAccessed": 1775141972563,
+      "type": "file"
+    },
+    {
+      "path": "app/models/test_suite.py",
+      "accessCount": 2,
+      "lastAccessed": 1775139179477,
+      "type": "file"
+    },
+    {
+      "path": "app/schema/test_suite.py",
+      "accessCount": 2,
+      "lastAccessed": 1775139446976,
+      "type": "file"
+    },
+    {
+      "path": "app/routers/testcase/testcase.py",
+      "accessCount": 2,
+      "lastAccessed": 1775142189046,
+      "type": "file"
+    },
+    {
+      "path": "app/core/request/generator.py",
+      "accessCount": 2,
+      "lastAccessed": 1775142199416,
+      "type": "file"
+    },
+    {
+      "path": "app/exception/error.py",
+      "accessCount": 1,
+      "lastAccessed": 1775093456296,
+      "type": "file"
+    },
+    {
+      "path": "app/middleware/Jwt.py",
+      "accessCount": 1,
+      "lastAccessed": 1775093456485,
+      "type": "file"
+    },
+    {
+      "path": "app/routers/config/__init__.py",
+      "accessCount": 1,
+      "lastAccessed": 1775093486112,
+      "type": "file"
+    },
+    {
+      "path": "alembic/env.py",
+      "accessCount": 1,
+      "lastAccessed": 1775093486176,
+      "type": "file"
+    },
+    {
+      "path": "app/routers/auth/user.py",
+      "accessCount": 1,
+      "lastAccessed": 1775093486238,
+      "type": "file"
+    },
+    {
+      "path": "app/handler/fatcory.py",
+      "accessCount": 1,
+      "lastAccessed": 1775093500682,
+      "type": "file"
+    },
+    {
+      "path": "conf/pro.env",
+      "accessCount": 1,
+      "lastAccessed": 1775127228794,
+      "type": "file"
+    },
+    {
+      "path": "app/schema/scheduler.py",
+      "accessCount": 1,
+      "lastAccessed": 1775130566224,
+      "type": "file"
+    },
+    {
+      "path": "app/crud/scheduler/CrontabScheduleDao.py",
+      "accessCount": 1,
+      "lastAccessed": 1775130645912,
+      "type": "file"
+    },
+    {
+      "path": "app/crud/scheduler/IntervalScheduleDao.py",
+      "accessCount": 1,
+      "lastAccessed": 1775130646324,
+      "type": "file"
+    },
+    {
+      "path": "app/crud/scheduler/PeriodicTaskDao.py",
+      "accessCount": 1,
+      "lastAccessed": 1775130646705,
+      "type": "file"
+    },
+    {
+      "path": "app/crud/scheduler/TaskExecutionDao.py",
+      "accessCount": 1,
+      "lastAccessed": 1775130647111,
+      "type": "file"
+    },
+    {
+      "path": "app/routers/scheduler/__init__.py",
+      "accessCount": 1,
+      "lastAccessed": 1775130701924,
+      "type": "file"
+    },
+    {
+      "path": "app/routers/project/project.py",
+      "accessCount": 1,
+      "lastAccessed": 1775131202020,
+      "type": "directory"
+    },
+    {
+      "path": "app/models/user.py",
+      "accessCount": 1,
+      "lastAccessed": 1775132026243,
+      "type": "file"
+    },
+    {
+      "path": "pity.py",
+      "accessCount": 1,
+      "lastAccessed": 1775132509902,
+      "type": "file"
+    },
+    {
+      "path": "app/crud/test_suite/TestSuiteDao.py",
+      "accessCount": 1,
+      "lastAccessed": 1775138985577,
+      "type": "file"
+    },
+    {
+      "path": "app/crud/test_suite/TestSuiteCaseDao.py",
+      "accessCount": 1,
+      "lastAccessed": 1775138985981,
+      "type": "file"
+    },
+    {
+      "path": "app/crud/test_suite/TestSuiteVariableDao.py",
+      "accessCount": 1,
+      "lastAccessed": 1775138986423,
+      "type": "file"
+    },
+    {
+      "path": "app/crud/test_suite/TestSuiteExecutionDao.py",
+      "accessCount": 1,
+      "lastAccessed": 1775138986901,
+      "type": "file"
+    },
+    {
+      "path": "app/routers/test_suite/suite.py",
+      "accessCount": 1,
+      "lastAccessed": 1775139064366,
+      "type": "file"
+    },
+    {
+      "path": "app/routers/test_suite/__init__.py",
+      "accessCount": 1,
+      "lastAccessed": 1775139064790,
+      "type": "file"
+    },
+    {
+      "path": "app/utils/suite_executor.py",
+      "accessCount": 1,
+      "lastAccessed": 1775139228587,
+      "type": "file"
+    },
+    {
+      "path": "app/crud/test_case/TestCaseDao.py",
+      "accessCount": 1,
+      "lastAccessed": 1775140161227,
+      "type": "file"
+    },
+    {
+      "path": "app/models/test_case.py",
+      "accessCount": 1,
+      "lastAccessed": 1775140175692,
+      "type": "file"
+    },
+    {
+      "path": "app/schema/request.py",
+      "accessCount": 1,
+      "lastAccessed": 1775140182942,
+      "type": "file"
+    }
+  ],
+  "userDirectives": []
+}

@@ -127,7 +127,10 @@ async def batch_generate_testcases(
     model = form.model or Config.AI_MODEL
 
     ai_service = OpenAIService()
-    cases_config = await ai_service.batch_generate_from_openapi(form.openapi_spec)
+    cases_config = await ai_service.batch_generate_from_openapi(
+        form.openapi_spec,
+        max_cases=form.max_cases
+    )
 
     saved_cases = []
     failed_count = 0
@@ -256,6 +259,9 @@ async def _save_generated_case(form: AIGenerateRequest, config: dict, user_id: i
     )
 
     # 构建用例表单
+    body_data = config.get("body")
+    headers_data = config.get("request_headers")
+
     case_form = TestCaseForm(
         name=config.get("name", "AI 生成用例"),
         url=config.get("url", "/"),
@@ -265,18 +271,35 @@ async def _save_generated_case(form: AIGenerateRequest, config: dict, user_id: i
         request_type=1,  # HTTP
         request_method=config.get("request_method", "POST"),
         body_type=config.get("body_type", 0),
-        body=json.dumps(config.get("body", {}), ensure_ascii=False) if config.get("body") else None,
-        request_headers=json.dumps(config.get("request_headers", {}), ensure_ascii=False) if config.get("request_headers") else None,
+        body=json.dumps(body_data, ensure_ascii=False) if body_data else "{}",
+        request_headers=json.dumps(headers_data, ensure_ascii=False) if headers_data else "{}",
     )
 
     # 构建断言
     asserts = []
     for idx, a in enumerate(config.get("asserts", [])):
+        assert_type = a.get("assert_type", "equal")
+        expected = str(a.get("expected", ""))
+        actually = str(a.get("actually", ""))
+
+        # 如果 actually 为空，根据 assert_type 设置默认值
+        if not actually:
+            if assert_type == "status_code":
+                actually = "$.status_code"
+            elif assert_type == "equal":
+                actually = "$.code"
+            else:
+                actually = "$.data"
+
+        # 跳过空的断言
+        if not expected:
+            continue
+
         asserts.append(TestCaseAssertsForm(
             name=f"断言_{idx + 1}",
-            assert_type=a.get("assert_type", "equal"),
-            expected=str(a.get("expected", "")),
-            actually=str(a.get("actually", "")),
+            assert_type=assert_type,
+            expected=expected,
+            actually=actually,
         ))
 
     # 构建完整用例信息

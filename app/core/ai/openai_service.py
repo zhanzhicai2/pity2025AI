@@ -146,15 +146,89 @@ class OpenAIService(AIService):
         Args:
             openapi_spec: OpenAPI JSON/YAML 规范
             **kwargs: 可选参数
+                - max_cases: 最大用例数量（默认 20）
 
         Returns:
             用例配置列表
         """
-        prompt = self.prompt_template.batch_generate_prompt(openapi_spec)
+        import json
+
+        max_cases = kwargs.get("max_cases", 20)
+
+        # 尝试解析 OpenAPI 规范，提取路径列表
+        try:
+            spec = json.loads(openapi_spec)
+            paths = spec.get("paths", {})
+            path_list = list(paths.keys())
+
+            # 如果路径太多，分批处理
+            if len(path_list) > 10:
+                return await self._batch_generate_by_paths(paths, max_cases)
+        except json.JSONDecodeError:
+            pass
+
+        # 直接使用完整规范（路径较少时）
+        prompt = self.prompt_template.batch_generate_prompt(openapi_spec, max_cases)
         messages = [{"role": "user", "content": prompt}]
 
         response = await self.chat(messages)
         return self._parse_batch_response(response)
+
+    async def _batch_generate_by_paths(self, paths: dict, max_cases: int) -> list:
+        """
+        按路径分批生成用例
+
+        Args:
+            paths: OpenAPI paths 对象
+            max_cases: 最大用例数量
+
+        Returns:
+            用例配置列表
+        """
+        import json
+
+        all_cases = []
+        path_list = list(paths.keys())[:max_cases]
+
+        # 过滤出有实际业务意义的路径
+        filtered_paths = {
+            p: paths[p] for p in path_list
+            if not any(k in p.lower() for k in ["health", "metrics", "ping", "swagger", "docs"])
+        }
+
+        if not filtered_paths:
+            return []
+
+        # 构造路径描述
+        path_descs = []
+        for path, methods in filtered_paths.items():
+            for method, details in methods.items():
+                if method.upper() in ["GET", "POST", "PUT", "DELETE", "PATCH"]:
+                    summary = details.get("summary", details.get("description", ""))
+                    path_descs.append(f"{method.upper()} {path}: {summary}")
+
+        # 分批调用 AI
+        batch_size = 5
+        for i in range(0, len(path_descs), batch_size):
+            batch = path_descs[i:i + batch_size]
+            paths_str = "\n".join(batch)
+
+            prompt = self.prompt_template.batch_generate_single_prompt(paths_str)
+            messages = [{"role": "user", "content": prompt}]
+
+            try:
+                response = await self.chat(messages)
+                cases = self._parse_batch_response(response)
+                all_cases.extend(cases)
+
+                # 达到上限则停止
+                if len(all_cases) >= max_cases:
+                    break
+            except Exception as e:
+                logger.bind(name=Config.PITY_ERROR).warning(f"批量生成批次 {i // batch_size + 1} 失败: {e}")
+                continue
+
+        return all_cases[:max_cases]
 
     def _parse_testcase_response(self, response: str) -> dict:
         """

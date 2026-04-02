@@ -89,24 +89,21 @@ class PromptTemplate:
 ```
 
 ## 输出格式
-请严格输出 JSON 数组格式：
+请严格输出 JSON 数组格式，每个用例尽量简洁：
 
 ```json
 [
     {{
-        "path": "/api/path",
-        "method": "get|post|put|delete",
         "name": "用例名称",
         "url": "/api/path",
         "request_method": "GET|POST|PUT|DELETE|PATCH",
         "body_type": 0-5,
-        "request_headers": {{}},
         "body": {{}},
         "asserts": [
             {{
-                "assert_type": "equal|status_code",
-                "expected": "预期值",
-                "actually": "$.code或$.status"
+                "assert_type": "status_code",
+                "expected": "200",
+                "actually": ""
             }}
         ]
     }}
@@ -114,10 +111,49 @@ class PromptTemplate:
 ```
 
 ## 要求
-1. 只生成有实际业务意义的 API（排除 health、metrics 等）
-2. 每个用例必须有至少一个业务断言
+1. 只生成有实际业务意义的 API（排除 health、metrics、ping 等）
+2. 每个用例必须有 HTTP 状态码断言
 3. 请求体参数来自 OpenAPI 的 requestBody
 4. 优先为 POST/PUT 请求生成请求体
+5. 用例名称控制在 15 字以内
+6. 最多生成 {max_cases} 个用例
+7. 只输出 JSON 数组，不要任何说明文字
+"""
+
+    # OpenAPI 分批生成 Prompt（单批）
+    BATCH_GENERATE_SINGLE_TEMPLATE = """你是一个专业的 API 测试工程师。请为以下 OpenAPI 端点生成测试用例。
+
+## OpenAPI 路径列表
+{paths}
+
+## 输出格式
+请严格输出 JSON 数组格式：
+
+```json
+[
+    {{
+        "name": "用例名称",
+        "url": "/api/path",
+        "request_method": "GET|POST|PUT|DELETE|PATCH",
+        "body_type": 0-5,
+        "body": {{}},
+        "asserts": [
+            {{
+                "assert_type": "status_code",
+                "expected": "200",
+                "actually": ""
+            }}
+        ]
+    }}
+]
+```
+
+## 要求
+1. 只生成有实际业务意义的 API（排除 health、metrics、ping 等）
+2. 每个用例必须有 HTTP 状态码断言
+3. 请求体参数来自 OpenAPI 的 requestBody
+4. 用例名称控制在 15 字以内
+5. 只输出 JSON 数组，不要任何说明文字
 """
 
     # cURL 解析 Prompt
@@ -167,9 +203,15 @@ class PromptTemplate:
             "{body}", json.dumps(case_info.get("body", {}), ensure_ascii=False)).replace(
             "{response_sample}", response_sample)
 
-    def batch_generate_prompt(self, openapi_spec: str) -> str:
+    def batch_generate_prompt(self, openapi_spec: str, max_cases: int = 20) -> str:
         """批量生成 Prompt"""
-        return self.BATCH_GENERATE_TEMPLATE.replace("{openapi_spec}", openapi_spec)
+        return self.BATCH_GENERATE_TEMPLATE.replace("{openapi_spec}", openapi_spec).replace(
+            "{max_cases}", str(max_cases)
+        )
+
+    def batch_generate_single_prompt(self, paths: str) -> str:
+        """单批生成 Prompt（分批处理时使用）"""
+        return self.BATCH_GENERATE_SINGLE_TEMPLATE.replace("{paths}", paths)
 
     def parse_curl_prompt(self, curl_command: str) -> str:
         """cURL 解析 Prompt"""

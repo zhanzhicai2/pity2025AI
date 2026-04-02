@@ -34,6 +34,7 @@ class BatchGenerateRequest(BaseModel):
     model: Optional[str] = None
     priority: str = "P3"
     status: int = 3
+    max_cases: int = 20  # 最大用例数量
 
 
 class CURLParseRequest(BaseModel):
