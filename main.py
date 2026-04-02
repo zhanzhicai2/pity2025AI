@@ -27,6 +27,7 @@ from app.routers.project import project
 from app.routers.request import http
 from app.routers.testcase import router as testcase_router
 from app.routers.workspace import router as workspace_router
+from app.routers.scheduler import router as scheduler_router
 from app.utils.scheduler import Scheduler
 from config import Config, PITY_ENV, BANNER
 
@@ -64,7 +65,7 @@ async def lifespan(app):
 
     # 初始化数据库，建表
     try:
-        asyncio.create_task(create_table())
+        await create_table()
         logger.bind(name=None).success("database and tables created success.        ✔")
     except Exception as e:
         logger.bind(name=None).error(f"database and tables  created failed.        ❌\nerror: {e}")
@@ -107,6 +108,7 @@ pity.include_router(oss_router, dependencies=[Depends(request_info)])
 pity.include_router(operation_router, dependencies=[Depends(request_info)])
 pity.include_router(msg_router, dependencies=[Depends(request_info)])
 pity.include_router(workspace_router, dependencies=[Depends(request_info)])
+pity.include_router(scheduler_router, dependencies=[Depends(request_info)])
 
 # pity.mount("/statics", StaticFiles(directory="statics"), name="statics")
 

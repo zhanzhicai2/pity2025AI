@@ -95,3 +95,7 @@ class DatabaseHelper(object):
 
 
 db_helper = DatabaseHelper()
+
+
+# 导入 scheduler 相关模型（用于自动建表）
+from app.models.scheduler import PityPeriodicTask, PityCrontabSchedule, PityIntervalSchedule, PityTaskExecution

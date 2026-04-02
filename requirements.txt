@@ -15,7 +15,7 @@ asyncmy==0.2.9
 Jinja2==3.0.3
 psycopg2-binary
 alembic==1.13.1
-APScheduler==3.8.0
+APScheduler>=3.10.0
 redis==5.0.4
 redlock~=1.2.0
 yagmail
