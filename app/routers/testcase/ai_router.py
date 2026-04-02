@@ -85,9 +85,14 @@ async def enhance_case_asserts(
     """
     AI 增强用例断言
 
-    根据已有用例和响应示例生成智能断言
+    根据已有用例和响应示例生成智能断言，并保存到数据库
     """
+    import json
     from app.crud.test_case.TestCaseDao import TestCaseDao
+    from app.crud.test_case.TestCaseAssertsDao import TestCaseAssertsDao
+    from app.schema.testcase_schema import TestCaseAssertsForm
+
+    user_id = user_info.get("id")
 
     # 获取用例信息
     case = await TestCaseDao.async_query_test_case(form.case_id)
@@ -100,13 +105,52 @@ async def enhance_case_asserts(
         "name": case.name,
         "url": case.url,
         "request_method": case.request_method,
-        "body": case.body,
+        "body": json.loads(case.body) if case.body else {},
     }
-    asserts = await ai_service.enhance_asserts(case_info, form.response_sample)
+    ai_asserts = await ai_service.enhance_asserts(case_info, form.response_sample)
+
+    # 保存断言到数据库
+    saved_asserts = []
+    for idx, a in enumerate(ai_asserts):
+        assert_type = a.get("assert_type", "equal")
+        expected = str(a.get("expected", ""))
+        actually = str(a.get("actually", ""))
+
+        # 设置默认值
+        if not actually:
+            if assert_type == "status_code":
+                actually = "$.status_code"
+            elif assert_type == "equal":
+                actually = "$.code"
+            else:
+                actually = "$.data"
+
+        if not expected:
+            continue
+
+        try:
+            assert_form = TestCaseAssertsForm(
+                name=f"AI断言_{idx + 1}",
+                case_id=form.case_id,
+                assert_type=assert_type,
+                expected=expected,
+                actually=actually,
+            )
+            saved = await TestCaseAssertsDao.insert_test_case_asserts(assert_form, user_id)
+            saved_asserts.append({
+                "id": saved.id,
+                "assert_type": assert_type,
+                "expected": expected,
+                "actually": actually,
+            })
+        except Exception as e:
+            # 断言已存在则跳过
+            continue
 
     return PityResponse.success({
         "case_id": form.case_id,
-        "asserts": asserts,
+        "asserts": saved_asserts,
+        "total": len(saved_asserts),
         "model": form.model or Config.AI_MODEL,
     })
 

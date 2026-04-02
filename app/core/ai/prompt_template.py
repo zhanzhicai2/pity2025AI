@@ -44,7 +44,7 @@ class PromptTemplate:
 """
 
     # 断言增强 Prompt
-    ENHANCE_ASSERTS_TEMPLATE = """你是一个专业的 API 测试工程师。请根据以下信息生成或增强测试断言。
+    ENHANCE_ASSERTS_TEMPLATE = """你是一个专业的 API 测试工程师。请根据以下信息生成测试断言。
 
 ## 用例信息
 - 名称：{case_name}
@@ -58,26 +58,34 @@ class PromptTemplate:
 ```
 
 ## 输出格式
-请严格输出 JSON 数组格式：
+请严格输出 JSON 数组格式，只输出 JSON，不要其他文字：
 
 ```json
 [
     {{
-        "assert_type": "equal|contain|in|status_code|json_equal",
+        "assert_type": "status_code|equal|contain|in|not_equal|json_equal",
         "expected": "预期值",
         "actually": "$.json.path"
     }}
 ]
 ```
 
-## 要求
-1. 分析响应示例，识别关键字段
-2. 断言必须包含：
-   - HTTP 状态码（assert_type: status_code）
-   - 业务状态码（assert_type: equal, expected: "0" 或 "200"）
-   - 关键业务字段验证
-3. 如果响应包含列表数据，验证列表非空或长度
-4. JSONPath 使用 $. 前缀
+## 断言类型说明
+- status_code: HTTP 状态码，expected 填数字如 200
+- equal: 精确相等，expected 填具体值
+- contain: 包含字符串
+- in: 值在列表中
+- not_equal: 不等于
+- json_equal: JSON 对象相等
+
+## 断言生成要求
+1. **必须包含 HTTP 状态码断言**（assert_type: status_code）
+2. **必须包含业务状态码断言**（assert_type: equal, expected 填响应中的 code 字段值）
+3. **识别关键业务字段**：如 token、id、data、message 等
+4. **列表数据验证**：如果响应包含列表，添加长度或非空验证
+5. **错误场景**：如果有 error 或 code != 0，应验证失败情况
+6. JSONPath 格式：$.data.xxx 或 $.code，$.message 等
+7. 只返回 JSON 数组，不要任何说明文字
 """
 
     # OpenAPI 批量生成 Prompt
