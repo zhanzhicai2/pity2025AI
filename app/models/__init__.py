@@ -1,10 +1,9 @@
 from asyncio import current_task
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.ext.asyncio import AsyncSession, async_scoped_session
 from sqlalchemy.ext.asyncio import create_async_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
 from app.enums.DatabaseEnum import DatabaseEnum
 from config import Config
@@ -17,7 +16,7 @@ def create_database():
     engine = create_engine('mysql+mysqlconnector://{}:{}@{}:{}'.format(
         Config.MYSQL_USER, Config.MYSQL_PWD, Config.MYSQL_HOST, Config.MYSQL_PORT), echo=True)
     with engine.connect() as conn:
-        conn.execute("CREATE DATABASE IF NOT EXISTS pity default character set utf8mb4 collate utf8mb4_unicode_ci")
+        conn.execute(text("CREATE DATABASE IF NOT EXISTS pity DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci"))
     # close engine
     engine.dispose()
 
@@ -43,7 +42,8 @@ async_session = async_scoped_session(
 )
 
 # 创建对象的基类:
-Base = declarative_base()
+class Base(DeclarativeBase):
+    pass
 
 
 # Base.metadata.create_all(engine)
@@ -77,13 +77,13 @@ class DatabaseHelper(object):
         if ss is None:
             raise Exception("暂不支持的数据库类型")
         async with ss() as session:
-            await session.execute("select 1")
+            await session.execute(text("select 1"))
 
     @staticmethod
     def get_jdbc_url(sql_type: int, host: str, port: int, username: str, password: str, database: str):
         if sql_type == DatabaseEnum.MYSQL:
             # mysql模式
-            return f'mysql+aiomysql://{username}:{password}@{host}:{port}/{database}'
+            return f'mysql+asyncmy://{username}:{password}@{host}:{port}/{database}'
         if sql_type == DatabaseEnum.POSTGRESQL:
             return f'postgresql+asyncpg://{username}:{password}@{host}:{port}/{database}'
         raise Exception("未知的数据库类型")
