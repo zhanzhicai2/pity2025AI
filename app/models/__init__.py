@@ -99,3 +99,6 @@ db_helper = DatabaseHelper()
 
 # 导入 scheduler 相关模型（用于自动建表）
 from app.models.scheduler import PityPeriodicTask, PityCrontabSchedule, PityIntervalSchedule, PityTaskExecution
+
+# 导入 test_suite 相关模型（用于自动建表）
+from app.models.test_suite import TestSuite, TestSuiteCase, TestSuiteVariable, TestSuiteExecution
