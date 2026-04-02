@@ -36,9 +36,13 @@ async def generate_testcase(
     ai_service = OpenAIService()
 
     # 根据输入类型调用不同的生成方法
+    user_id = user_info.get("id")
     if form.input_type == "text":
         result = await ai_service.generate_testcase(form.content)
+        # 保存到数据库
+        case = await _save_generated_case(form, result, user_id)
         return PityResponse.success({
+            "case_id": case.id,
             "name": result.get("name", "AI 生成用例"),
             "url": result.get("url", "/"),
             "request_method": result.get("request_method", "POST"),
@@ -50,7 +54,10 @@ async def generate_testcase(
         })
     elif form.input_type == "curl":
         result = await ai_service.parse_curl(form.content)
+        # 保存到数据库
+        case = await _save_generated_case(form, result, user_id)
         return PityResponse.success({
+            "case_id": case.id,
             "name": result.get("name", "AI 生成用例"),
             "url": result.get("url", "/"),
             "request_method": result.get("request_method", "POST"),
