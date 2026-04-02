@@ -61,8 +61,28 @@ class OpenAIService(AIService):
                 result = response.json()
                 return result["choices"][0]["message"]["content"]
         except httpx.HTTPStatusError as e:
-            logger.bind(name=Config.PITY_ERROR).error(f"AI API HTTP 错误: {e.response.text}")
-            raise Exception(f"AI API 请求失败: {e.response.status_code}")
+            error_detail = e.response.text
+            status_code = e.response.status_code
+            logger.bind(name=Config.PITY_ERROR).error(f"AI API HTTP 错误 [{status_code}]: {error_detail}")
+            # 根据状态码给出友好提示
+            if status_code == 401 or status_code == 403:
+                raise Exception("AI API 认证失败，请检查 AI_OPENAI_API_KEY 是否正确")
+            elif status_code == 404:
+                raise Exception(f"AI API 地址错误，请检查 AI_OPENAI_BASE_URL 配置是否正确，当前: {url}")
+            elif status_code == 422:
+                raise Exception(f"AI 模型不存在或参数错误，请检查 AI_MODEL 配置是否正确，当前模型: {model or self.default_model}")
+            elif status_code == 429:
+                raise Exception("AI API 请求过于频繁，请稍后重试")
+            elif status_code >= 500:
+                raise Exception(f"AI 服务端错误 [{status_code}]，请稍后重试")
+            else:
+                raise Exception(f"AI API 请求失败 [{status_code}]: {error_detail[:200]}")
+        except httpx.ConnectError as e:
+            logger.bind(name=Config.PITY_ERROR).error(f"AI API 连接失败: {e}")
+            raise Exception(f"AI API 连接失败，请检查 AI_OPENAI_BASE_URL 配置是否正确，当前: {url}")
+        except httpx.TimeoutException:
+            logger.bind(name=Config.PITY_ERROR).error("AI API 请求超时")
+            raise Exception("AI API 请求超时，请检查网络连接或稍后重试")
         except Exception as e:
             logger.bind(name=Config.PITY_ERROR).error(f"AI API 请求异常: {e}")
             raise

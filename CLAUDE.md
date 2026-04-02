@@ -117,7 +117,16 @@ Request → CORS Middleware → Error Middleware → Router → DAO (@connect管
   - `POST /testcase/ai/batch-generate` — OpenAPI 批量生成
   - `POST /testcase/ai/parse-curl` — cURL 解析生成
   - `GET /testcase/ai/models` — 获取可用模型
-- **配置项**（`config.py`）：`AI_OPENAI_API_KEY`、`AI_OPENAI_BASE_URL`、`AI_MODEL`
+- **配置项**（`config.py`）：`AI_OPENAI_API_KEY`、`AI_OPENAI_BASE_URL`、`AI_MODEL`、`AI_MAX_TOKENS`、`AI_TEMPERATURE`
+- **错误处理**：AI 服务返回详细错误提示
+  - 401/403 → "AI API 认证失败，请检查 AI_OPENAI_API_KEY 是否正确"
+  - 404 → "AI API 地址错误，请检查 AI_OPENAI_BASE_URL 配置是否正确"
+  - 422 → "AI 模型不存在或参数错误，请检查 AI_MODEL 配置是否正确"
+  - 429 → "AI API 请求过于频繁，请稍后重试"
+  - 500+ → "AI 服务端错误，请稍后重试"
+  - 连接失败 → "AI API 连接失败，请检查 AI_OPENAI_BASE_URL 配置是否正确"
+  - 超时 → "AI API 请求超时，请检查网络连接或稍后重试"
+- **支持的 AI 服务商**：MiniMax、DeepSeek、智谱（GLM）
 
 ### 测试套件系统（Phase 3）
 
