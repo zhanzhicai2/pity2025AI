@@ -158,22 +158,19 @@ class PromptTemplate:
 
     def generate_case_prompt(self, api_description: str) -> str:
         """生成用例 Prompt"""
-        return self.GENERATE_CASE_TEMPLATE.format(api_description=api_description)
+        return self.GENERATE_CASE_TEMPLATE.replace("{api_description}", api_description)
 
     def enhance_asserts_prompt(self, case_info: dict, response_sample: str) -> str:
         """增强断言 Prompt"""
-        return self.ENHANCE_ASSERTS_TEMPLATE.format(
-            case_name=case_info.get("name", ""),
-            url=case_info.get("url", ""),
-            method=case_info.get("request_method", ""),
-            body=json.dumps(case_info.get("body", {}), ensure_ascii=False),
-            response_sample=response_sample,
-        )
+        return self.ENHANCE_ASSERTS_TEMPLATE.replace("{case_name}", case_info.get("name", "")).replace(
+            "{url}", case_info.get("url", "")).replace("{method}", case_info.get("request_method", "")).replace(
+            "{body}", json.dumps(case_info.get("body", {}), ensure_ascii=False)).replace(
+            "{response_sample}", response_sample)
 
     def batch_generate_prompt(self, openapi_spec: str) -> str:
         """批量生成 Prompt"""
-        return self.BATCH_GENERATE_TEMPLATE.format(openapi_spec=openapi_spec)
+        return self.BATCH_GENERATE_TEMPLATE.replace("{openapi_spec}", openapi_spec)
 
     def parse_curl_prompt(self, curl_command: str) -> str:
         """cURL 解析 Prompt"""
-        return self.CURL_PARSE_TEMPLATE.format(curl_command=curl_command)
+        return self.CURL_PARSE_TEMPLATE.replace("{curl_command}", curl_command)

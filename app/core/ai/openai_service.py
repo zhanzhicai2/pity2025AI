@@ -30,7 +30,17 @@ class OpenAIService(AIService):
         """
         发送对话请求到 AI 服务
         """
-        url = f"{self.base_url}/v1/chat/completions"
+        # 兼容不同 AI 服务商的 API 路径
+        base = self.base_url.rstrip("/")
+        if "minimaxi" in base:
+            url = f"{base}/v1/chat/completions"
+        elif "bigmodel" in base:
+            url = f"{base}/api/paas/v4/chat/completions"
+        elif base.endswith("/v1") or base.endswith("/v1/"):
+            # base_url 已经包含 /v1
+            url = f"{base}/chat/completions"
+        else:
+            url = f"{base}/v1/chat/completions"
         headers = {
             "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json",

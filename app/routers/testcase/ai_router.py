@@ -31,7 +31,6 @@ async def generate_testcase(
 
     根据自然语言描述、OpenAPI Schema、cURL 等输入生成测试用例
     """
-    user_id = user_info.get("id")
     model = form.model or Config.AI_MODEL
 
     ai_service = OpenAIService()
@@ -39,27 +38,36 @@ async def generate_testcase(
     # 根据输入类型调用不同的生成方法
     if form.input_type == "text":
         result = await ai_service.generate_testcase(form.content)
+        return PityResponse.success({
+            "name": result.get("name", "AI 生成用例"),
+            "url": result.get("url", "/"),
+            "request_method": result.get("request_method", "POST"),
+            "body_type": result.get("body_type", 0),
+            "body": result.get("body"),
+            "request_headers": result.get("request_headers"),
+            "asserts": result.get("asserts", []),
+            "model": model,
+        })
     elif form.input_type == "curl":
         result = await ai_service.parse_curl(form.content)
+        return PityResponse.success({
+            "name": result.get("name", "AI 生成用例"),
+            "url": result.get("url", "/"),
+            "request_method": result.get("request_method", "POST"),
+            "body_type": result.get("body_type", 0),
+            "body": result.get("body"),
+            "request_headers": result.get("request_headers"),
+            "asserts": result.get("asserts", []),
+            "model": model,
+        })
     elif form.input_type == "openapi":
         result = await ai_service.batch_generate_from_openapi(form.content)
+        return PityResponse.success({
+            "cases": result,
+            "model": model,
+        })
     else:
         return PityResponse.failed(msg=f"不支持的输入类型: {form.input_type}")
-
-    # 保存用例
-    case = await _save_generated_case(form, result, user_id)
-
-    return PityResponse.success({
-        "case_id": case.id,
-        "name": case.name,
-        "url": case.url,
-        "request_method": case.request_method,
-        "body_type": case.body_type,
-        "body": case.body,
-        "request_headers": case.request_headers,
-        "asserts": result.get("asserts", []),
-        "model": model,
-    })
 
 
 @router.post("/enhance", response_model=dict)
@@ -256,8 +264,9 @@ async def _save_generated_case(form: AIGenerateRequest, config: dict, user_id: i
 
     # 构建断言
     asserts = []
-    for a in config.get("asserts", []):
+    for idx, a in enumerate(config.get("asserts", [])):
         asserts.append(TestCaseAssertsForm(
+            name=f"断言_{idx + 1}",
             assert_type=a.get("assert_type", "equal"),
             expected=str(a.get("expected", "")),
             actually=str(a.get("actually", "")),
@@ -266,7 +275,7 @@ async def _save_generated_case(form: AIGenerateRequest, config: dict, user_id: i
     # 构建完整用例信息
     case_info = TestCaseInfo(
         case=case_form,
-        asserts=asserts,
+        asserts=asserts if asserts else [],
     )
 
     # 保存

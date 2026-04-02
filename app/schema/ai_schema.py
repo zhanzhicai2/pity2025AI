@@ -1,5 +1,5 @@
 from typing import Optional, List, Dict, Any
-from pydantic import BaseModel, ConfigDict, field_validator
+from pydantic import BaseModel, ConfigDict
 
 
 # ==================== 请求 Schema ====================
@@ -14,15 +14,6 @@ class AIGenerateRequest(BaseModel):
     model: Optional[str] = None  # 覆盖默认模型
     priority: str = "P3"
     status: int = 3  # 1=调试中 2=关闭 3=正常
-
-    @field_validator("content")
-    @classmethod
-    def content_length(cls, v: str) -> str:
-        if len(v) > 10000:
-            raise ValueError("输入内容不能超过 10000 字符")
-        if len(v) < 5:
-            raise ValueError("输入内容不能少于 5 字符")
-        return v
 
 
 class AIEnhanceRequest(BaseModel):
