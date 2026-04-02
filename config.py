@@ -76,7 +76,7 @@ class BaseConfig(BaseSettings):
     # markdown地址
     MARKDOWN_PATH: ClassVar[str] = os.path.join(ROOT, 'templates', "markdown")
 
-    SERVER_REPORT: ClassVar[str] = "http://localhost:8000/#/record/report/"
+    SERVER_REPORT: str = "http://localhost:8000/#/record/report/"
 
     OSS_URL: ClassVar[str] = "http://oss.pity.fun"
 
@@ -106,7 +106,7 @@ class DevConfig(BaseConfig):
 class ProConfig(BaseConfig):
     model_config = SettingsConfigDict(env_file=os.path.join(ROOT, "conf", "pro.env"))
 
-    SERVER_REPORT: ClassVar[str] = "https://pity.fun/#/record/report/"
+    SERVER_REPORT: str = "https://pity.fun/#/record/report/"
     SERVER_HOST: str = "127.0.0.1"
 
 
