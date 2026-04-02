@@ -1,4 +1,4 @@
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, field_validator
 
 from app.schema.base import PityModel
 
@@ -11,7 +11,7 @@ class PityTestCaseOutParametersForm(BaseModel):
     match_index: str = None
     source: int
 
-    @validator("name", "source")
+    @field_validator("name", "source")
     def name_not_empty(cls, v):
         return PityModel.not_empty(v)
 

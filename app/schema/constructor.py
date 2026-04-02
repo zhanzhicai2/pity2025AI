@@ -1,4 +1,4 @@
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, field_validator
 
 from app.exception.error import ParamsError
 from app.schema.base import PityModel
@@ -15,7 +15,7 @@ class ConstructorForm(BaseModel):
     public: bool
     suffix: bool
 
-    @validator("name", "constructor_json", "type", "public", "enable", "suffix")
+    @field_validator("name", "constructor_json", "type", "public", "enable", "suffix")
     def name_not_empty(cls, v):
         if isinstance(v, str) and len(v.strip()) == 0:
             raise ParamsError("不能为空")
@@ -33,6 +33,6 @@ class ConstructorIndex(BaseModel):
     id: int
     index: int
 
-    @validator("id", "index")
+    @field_validator("id", "index")
     def name_not_empty(cls, v):
         return PityModel.not_empty(v)

@@ -1,4 +1,4 @@
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, field_validator
 
 # 都可以为空，为空则不进行更改
 from app.exception.error import ParamsError
@@ -13,7 +13,7 @@ class UserUpdateForm(BaseModel):
     role: int = None
     is_valid: bool = None
 
-    @validator('id')
+    @field_validator('id')
     def id_not_empty(cls, v):
         return PityModel.not_empty(v)
 
@@ -24,7 +24,7 @@ class UserDto(BaseModel):
     username: str
     email: str
 
-    @validator('name', 'password', 'username', 'email')
+    @field_validator('name', 'password', 'username', 'email')
     def field_not_empty(cls, v):
         if isinstance(v, str) and len(v.strip()) == 0:
             raise ParamsError("不能为空")
@@ -35,7 +35,7 @@ class UserForm(BaseModel):
     username: str
     password: str
 
-    @validator('password', 'username')
+    @field_validator('password', 'username')
     def name_not_empty(cls, v):
         if isinstance(v, str) and len(v.strip()) == 0:
             raise ParamsError("不能为空")
@@ -46,7 +46,7 @@ class ResetPwdForm(BaseModel):
     password: str
     token: str
 
-    @validator('token', 'password')
+    @field_validator('token', 'password')
     def name_not_empty(cls, v):
         if isinstance(v, str) and len(v.strip()) == 0:
             raise ParamsError("不能为空")

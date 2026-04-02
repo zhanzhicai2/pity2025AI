@@ -43,7 +43,7 @@ class PityTestCaseOutParametersDao(Mapper):
                     for item in data:
                         # if item.id is None:
                         #     # add
-                        #     temp = PityTestCaseOutParameters(**item.dict(), case_id=case_id, user_id=user_id)
+                        #     temp = PityTestCaseOutParameters(**item.model_dump(), case_id=case_id, user_id=user_id)
                         #     session.add(temp)
                         # else:
                         query = await session.execute(select(PityTestCaseOutParameters).where(
@@ -53,7 +53,7 @@ class PityTestCaseOutParametersDao(Mapper):
                         temp = query.scalars().first()
                         if temp is None:
                             # 走新增逻辑
-                            temp = PityTestCaseOutParameters(**item.dict(), case_id=case_id, user_id=user_id)
+                            temp = PityTestCaseOutParameters(**item.model_dump(), case_id=case_id, user_id=user_id)
                             session.add(temp)
                         else:
                             temp.name = item.name

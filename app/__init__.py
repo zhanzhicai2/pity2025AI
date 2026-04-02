@@ -22,7 +22,7 @@ sys.path.append(__file__)
 
 # from starlette_context import middleware, plugins
 
-pity = FastAPI()
+pity = FastAPI(lifespan=None)
 
 # pity.add_middleware(
 #     middleware.ContextMiddleware,

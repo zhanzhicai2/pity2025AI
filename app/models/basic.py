@@ -10,13 +10,14 @@ from config import Config
 
 
 class PityBase(Base):
+    __abstract__ = True
+    __allow_unmapped__ = True
     id = Column(INT, primary_key=True)
     created_at = Column(TIMESTAMP, nullable=False)
     updated_at = Column(TIMESTAMP, nullable=False)
     deleted_at = Column(BIGINT, nullable=False, default=0)
     create_user = Column(INT, nullable=False)
     update_user = Column(INT, nullable=False)
-    __abstract__ = True
     __fields__: Tuple[Column] = [id]
     __tag__ = "未定义"
     __alias__ = dict(name="名称")

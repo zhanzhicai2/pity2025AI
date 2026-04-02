@@ -83,9 +83,9 @@ class TestCaseDao(Mapper):
             for f in field_data:
                 if hasattr(f, "case_id"):
                     setattr(f, "case_id", case_id)
-                    data = model(**f.dict(), user_id=user_id)
+                    data = model(**f.model_dump(), user_id=user_id)
                 else:
-                    data = model(**f.dict(), user_id=user_id, case_id=case_id)
+                    data = model(**f.model_dump(), user_id=user_id, case_id=case_id)
                 await md.insert(model=data, session=session, not_begin=True)
 
     @staticmethod
@@ -102,7 +102,7 @@ class TestCaseDao(Mapper):
                                    TestCase.deleted_at == 0))
         if query.scalars().first() is not None:
             raise Exception("用例名称已存在")
-        cs = TestCase(**data.case.dict(), create_user=user_id)
+        cs = TestCase(**data.case.model_dump(), create_user=user_id)
         # 添加case，之后添加其他数据
         session.add(cs)
         await session.flush()

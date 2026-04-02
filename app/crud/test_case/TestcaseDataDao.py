@@ -25,7 +25,7 @@ class PityTestcaseDataDao(Mapper):
                     query = result.scalars().first()
                     if query is not None:
                         raise Exception("该数据已存在, 请重新编辑")
-                    data = PityTestcaseData(**form.dict(), user_id=user_id)
+                    data = PityTestcaseData(**form.model_dump(), user_id=user_id)
                     session.add(data)
                     await session.flush()
                     await session.refresh(data)

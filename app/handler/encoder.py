@@ -9,7 +9,16 @@ from types import GeneratorType
 from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Union
 
 from pydantic import BaseModel
-from pydantic.json import ENCODERS_BY_TYPE
+
+# Pydantic v2: ENCODERS_BY_TYPE was removed, define a minimal replacement
+ENCODERS_BY_TYPE: Dict[Any, Callable[[Any], Any]] = {
+    datetime: lambda o: o.isoformat(),
+    Decimal: lambda o: str(o),
+    PurePath: lambda o: str(o),
+    bytes: lambda o: o.decode('utf-8'),
+    set: lambda o: list(o),
+    frozenset: lambda o: list(o),
+}
 
 SetIntStr = Set[Union[int, str]]
 DictIntStrAny = Dict[Union[int, str], Any]
@@ -68,10 +77,10 @@ def jsonable_encoder(
     if exclude is not None and not isinstance(exclude, (set, dict)):
         exclude = set(exclude)
     if isinstance(obj, BaseModel):
-        encoder = getattr(obj.__config__, "json_encoders", {})
+        encoder = getattr(obj.model_config, "json_encoders", {})
         if custom_encoder:
             encoder.update(custom_encoder)
-        obj_dict = obj.dict(
+        obj_dict = obj.model_dump(
             include=include,  # type: ignore # in Pydantic
             exclude=exclude,  # type: ignore # in Pydantic
             by_alias=by_alias,

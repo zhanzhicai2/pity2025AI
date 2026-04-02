@@ -31,7 +31,7 @@ class EnvironmentDao(Mapper):
                         select(Environment).where(Environment.name == data.name, Environment.deleted_at == 0))
                     if query.scalars().first() is not None:
                         raise Exception(f"环境已存在")
-                    env = Environment(**data.dict(), user=user)
+                    env = Environment(**data.model_dump(), user=user)
                     session.add(env)
         except Exception as e:
             EnvironmentDao.__log__.error(f"新增环境: {data.name}失败, {e}")

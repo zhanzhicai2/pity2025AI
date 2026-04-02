@@ -1,4 +1,4 @@
-from pydantic import validator, BaseModel
+from pydantic import field_validator, BaseModel
 
 from app.schema.base import PityModel
 
@@ -14,6 +14,6 @@ class DatabaseForm(BaseModel):
     sql_type: int
     env: int
 
-    @validator("name", "host", "port", "username", "password", "database", "sql_type", "env")
+    @field_validator("name", "host", "port", "username", "password", "database", "sql_type", "env")
     def data_not_empty(cls, v):
         return PityModel.not_empty(v)

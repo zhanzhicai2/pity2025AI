@@ -73,7 +73,7 @@ class PityTestPlanDao(Mapper):
                                                                              PityTestPlan.deleted_at == 0))
                     if query.scalars().first() is not None:
                         raise Exception("测试计划已存在")
-                    test_plan = PityTestPlan(**plan.dict(), user=user)
+                    test_plan = PityTestPlan(**plan.model_dump(), user=user)
                     session.add(test_plan)
                     await session.flush()
                     await session.refresh(test_plan)

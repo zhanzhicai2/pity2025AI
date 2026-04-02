@@ -1,4 +1,4 @@
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, field_validator
 
 from app.schema.base import PityModel
 
@@ -7,6 +7,6 @@ class OnlineSQLForm(BaseModel):
     id: int = None
     sql: str
 
-    @validator("sql", 'id')
+    @field_validator("sql", 'id')
     def name_not_empty(cls, v):
         return PityModel.not_empty(v)

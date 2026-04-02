@@ -33,7 +33,7 @@ async def insert_redis_config(form: RedisConfigForm,
         query = await PityRedisConfigDao.query_record(name=form.name, env=form.env)
         if query is not None:
             raise Exception("数据已存在, 请勿重复添加")
-        data = PityRedis(**form.dict(), user=user_info['id'])
+        data = PityRedis(**form.model_dump(), user=user_info['id'])
         result = await PityRedisConfigDao.insert(model=data, log=True)
         return PityResponse.success(data=result)
     except Exception as err:

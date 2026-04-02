@@ -1,4 +1,4 @@
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, field_validator
 
 from app.exception.error import ParamsError
 
@@ -8,7 +8,7 @@ class EnvironmentForm(BaseModel):
     name: str
     remarks: str = None
 
-    @validator("name")
+    @field_validator("name")
     def name_not_empty(cls, v):
         if isinstance(v, str) and len(v.strip()) == 0:
             raise ParamsError("不能为空")

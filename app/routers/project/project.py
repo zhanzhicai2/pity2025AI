@@ -32,7 +32,7 @@ async def list_project(page: int = 1, size: int = 8, name: str = "", user_info=D
 
 @router.post("/insert")
 async def insert_project(data: ProjectForm, user_info=Depends(Permission(Config.MANAGER))):
-    await ProjectDao.add_project(user_id=user_info["id"], **data.dict())
+    await ProjectDao.add_project(user_id=user_info["id"], **data.model_dump())
     return PityResponse.success()
 
 
@@ -53,7 +53,7 @@ async def update_project_avatar(project_id: int, file: UploadFile = File(...), u
 @router.post("/update")
 async def update_project(data: ProjectEditForm, user_info=Depends(Permission())):
     user_id, role = user_info["id"], user_info["role"]
-    await ProjectDao.update_project(user_id=user_id, role=role, **data.dict())
+    await ProjectDao.update_project(user_id=user_id, role=role, **data.model_dump())
     return PityResponse.success()
 
 
@@ -96,7 +96,7 @@ async def insert_project_role(role: ProjectRoleForm, user_info=Depends(Permissio
         if query is not None:
             raise Exception("该用户已存在")
         await ProjectRoleDao.has_permission(role.project_id, role.project_role, user_info['id'], user_info['role'])
-        model = ProjectRole(**role.dict(), create_user=user_info['id'])
+        model = ProjectRole(**role.model_dump(), create_user=user_info['id'])
         await ProjectRoleDao.insert(model=model, log=True)
     except Exception as e:
         return PityResponse.failed(e)

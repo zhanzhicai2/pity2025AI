@@ -21,7 +21,7 @@ router = APIRouter(prefix="/auth")
 @router.post("/register")
 async def register(user: UserDto):
     try:
-        user = await UserDao.register_user(**user.dict())
+        user = await UserDao.register_user(**user.model_dump())
         user = PityResponse.model_to_dict(user, "password")
         expire, token = UserToken.get_token(user)
         return PityResponse.success(dict(token=token, user=user, expire=expire), msg="注册成功, 请登录")

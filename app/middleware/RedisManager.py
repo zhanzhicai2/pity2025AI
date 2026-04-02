@@ -12,7 +12,7 @@ from typing import Tuple
 from awaits.awaitable import awaitable
 from loguru import logger
 from redis import ConnectionPool, StrictRedis
-from rediscluster import RedisCluster, ClusterConnectionPool
+from redis.cluster import RedisCluster
 
 from app.exception.error import RedisError
 from config import Config
@@ -113,8 +113,7 @@ class PityRedisManager(object):
             startup_nodes = [{"host": n.split(":")[0], "port": n.split(":")[1]} for n in nodes if ":" in n]
             if len(startup_nodes) == 0:
                 raise Exception("找不到集群节点，请检查配置")
-            pool = ClusterConnectionPool(startup_nodes=startup_nodes, max_connections=100, decode_responses=True)
-            client = RedisCluster(connection_pool=pool, decode_responses=True)
+            client = RedisCluster(startup_nodes=startup_nodes, max_connections=100, decode_responses=True)
             return client
         except Exception as e:
             raise RedisError(f"获取Redis连接失败, {e}")

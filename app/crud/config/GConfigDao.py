@@ -24,7 +24,7 @@ class GConfigDao(Mapper):
                     data = query.scalars().first()
                     if data is not None:
                         raise Exception(f"变量: {data.key}已存在")
-                    config = GConfig(**form.dict(), user=user_id)
+                    config = GConfig(**form.model_dump(), user=user_id)
                     session.add(config)
         except Exception as e:
             cls.__log__.error(f"新增变量: {data.key}失败, {e}")

@@ -75,4 +75,4 @@ class RequestInfo(pydantic.BaseModel):
         return request.data.decode('utf-8')
 
     def dumps(self):
-        return json.dumps(self.dict(), ensure_ascii=False)
+        return json.dumps(self.model_dump(), ensure_ascii=False)

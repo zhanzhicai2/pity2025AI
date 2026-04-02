@@ -1,6 +1,6 @@
 from typing import List
 
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, field_validator
 
 from app.exception.error import ParamsError
 from app.schema.base import PityModel
@@ -37,7 +37,7 @@ class TestCaseForm(BaseModel):
     directory_id: int
     request_type: int
 
-    @validator("priority", "status", "directory_id", "request_type", "url", "name")
+    @field_validator("priority", "status", "directory_id", "request_type", "url", "name")
     def name_not_empty(cls, v):
         if isinstance(v, str) and len(v.strip()) == 0:
             raise ParamsError("不能为空")
@@ -52,7 +52,7 @@ class TestCaseAssertsForm(BaseModel):
     expected: str
     actually: str
 
-    @validator("name", "assert_type", "expected", "actually")
+    @field_validator("name", "assert_type", "expected", "actually")
     def name_not_empty(cls, v):
         return PityModel.not_empty(v)
 
@@ -64,7 +64,7 @@ class TestCaseInfo(BaseModel):
     constructor: List[ConstructorForm] = []
     out_parameters: List[PityTestCaseOutParametersForm] = []
 
-    @validator("case")
+    @field_validator("case")
     def name_not_empty(cls, v):
         return PityModel.not_empty(v)
 

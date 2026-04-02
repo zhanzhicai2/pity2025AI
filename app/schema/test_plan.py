@@ -1,6 +1,6 @@
 from typing import List
 
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, field_validator
 
 from app.schema.base import PityModel
 
@@ -19,6 +19,6 @@ class PityTestPlanForm(BaseModel):
     msg_type: List[int] = list()
     retry_minutes: int = 0
 
-    @validator("case_list", "project_id", "env", "cron", "ordered", "priority", "name", "pass_rate")
+    @field_validator("case_list", "project_id", "env", "cron", "ordered", "priority", "name", "pass_rate")
     def name_not_empty(cls, v):
         return PityModel.not_empty(v)

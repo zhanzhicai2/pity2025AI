@@ -83,7 +83,7 @@ class PityRouter(object):
         query = [] if self.query_list is None else self.query_list
 
         async def create(data: self.schema, user_info=Depends(AuthUser())):  # type: ignore
-            model = data.dict()
+            model = data.model_dump()
             model.pop('id', None)
             result = await self.dao.insert(self.dao.model(**model, user=user_info.name))
             return PityResponse.success(result)

@@ -55,7 +55,7 @@ class DbConfigDao(Mapper):
                     query = result.scalars().first()
                     if query is not None:
                         raise Exception("数据库配置已存在")
-                    session.add(PityDatabase(**data.dict(), user=user))
+                    session.add(PityDatabase(**data.model_dump(), user=user))
         except Exception as e:
             DbConfigDao.log.error(f"新增数据库配置: {data.name}失败, {e}")
             raise Exception("新增数据库配置失败")

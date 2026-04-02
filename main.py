@@ -1,4 +1,5 @@
 import asyncio
+from contextlib import asynccontextmanager
 from mimetypes import guess_type
 from os.path import isfile
 
@@ -33,6 +34,50 @@ logger = init_logging()
 
 logger.bind(name=None).opt(ansi=True).success(f"pity is running at <red>{PITY_ENV}</red>")
 logger.bind(name=None).success(BANNER)
+
+
+@asynccontextmanager
+async def lifespan(app):
+    # === Startup ===
+    # 初始化 Redis
+    try:
+        await RedisHelper.ping()
+        logger.bind(name=None).success("redis connected success.        ✔")
+    except Exception as e:
+        if not Config.REDIS_ON:
+            logger.bind(name=None).warning(
+                f"Redis is not selected, So we can't ensure that the task is not executed repeatedly.        🚫")
+        else:
+            logger.bind(name=None).error(f"Redis connect failed, Please check config.py for redis config.        ❌")
+            raise e
+
+    # 初始化定时任务
+    job_store = {
+        'default': SQLAlchemyJobStore(url=Config.SQLALCHEMY_DATABASE_URI, engine_options={"pool_recycle": 1500},
+                                      pickle_protocol=3)
+    }
+    scheduler = AsyncIOScheduler()
+    Scheduler.init(scheduler)
+    Scheduler.configure(jobstores=job_store)
+    Scheduler.start()
+    logger.bind(name=None).success("ApScheduler started success.        ✔")
+
+    # 初始化数据库，建表
+    try:
+        asyncio.create_task(create_table())
+        logger.bind(name=None).success("database and tables created success.        ✔")
+    except Exception as e:
+        logger.bind(name=None).error(f"database and tables  created failed.        ❌\nerror: {e}")
+        raise
+
+    yield
+
+    # === Shutdown ===
+    pass
+
+
+# 设置 lifespan
+pity.router.lifespan_context = lifespan
 
 
 async def request_info(request: Request):
@@ -99,61 +144,6 @@ pity.include_router(workspace_router, dependencies=[Depends(request_info)])
 #
 #     content_type, _ = guess_type(filename)
 #     return Response(content, media_type=content_type)
-
-
-@pity.on_event('startup')
-async def init_redis():
-    """
-    初始化redis，失败则服务起不来
-    :return:
-    """
-    try:
-        await RedisHelper.ping()
-        logger.bind(name=None).success("redis connected success.        ✔")
-    except Exception as e:
-        if not Config.REDIS_ON:
-            logger.bind(name=None).warning(
-                f"Redis is not selected, So we can't ensure that the task is not executed repeatedly.        🚫")
-            return
-        logger.bind(name=None).error(f"Redis connect failed, Please check config.py for redis config.        ❌")
-        raise e
-
-
-@pity.on_event('startup')
-def init_scheduler():
-    """
-    初始化定时任务
-    :return:
-    """
-    # SQLAlchemyJobStore指定存储链接
-    job_store = {
-        'default': SQLAlchemyJobStore(url=Config.SQLALCHEMY_DATABASE_URI, engine_options={"pool_recycle": 1500},
-                                      pickle_protocol=3)
-    }
-    scheduler = AsyncIOScheduler()
-    Scheduler.init(scheduler)
-    Scheduler.configure(jobstores=job_store)
-    Scheduler.start()
-    logger.bind(name=None).success("ApScheduler started success.        ✔")
-
-
-@pity.on_event('startup')
-async def init_database():
-    """
-    初始化数据库，建表
-    :return:
-    """
-    try:
-        asyncio.create_task(create_table())
-        logger.bind(name=None).success("database and tables created success.        ✔")
-    except Exception as e:
-        logger.bind(name=None).error(f"database and tables  created failed.        ❌\nerror: {e}")
-        raise
-
-
-@pity.on_event('shutdown')
-def stop_test():
-    pass
 
 
 @pity.websocket("/ws/{user_id}")
