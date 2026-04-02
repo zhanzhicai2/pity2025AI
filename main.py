@@ -25,7 +25,7 @@ from app.routers.operation import router as operation_router
 from app.routers.oss import router as oss_router
 from app.routers.project import project
 from app.routers.request import http
-from app.routers.testcase import router as testcase_router
+from app.routers.testcase import router as testcase_router, ai_router
 from app.routers.workspace import router as workspace_router
 from app.routers.scheduler import router as scheduler_router
 from app.routers.test_suite import router as test_suite_router
@@ -103,6 +103,7 @@ pity.include_router(user.router)
 pity.include_router(project.router, dependencies=[Depends(request_info)])
 pity.include_router(http.router, dependencies=[Depends(request_info)])
 pity.include_router(testcase_router, dependencies=[Depends(request_info)])
+pity.include_router(ai_router, dependencies=[Depends(request_info)])
 pity.include_router(config_router, dependencies=[Depends(request_info)])
 pity.include_router(online_router, dependencies=[Depends(request_info)])
 pity.include_router(oss_router, dependencies=[Depends(request_info)])

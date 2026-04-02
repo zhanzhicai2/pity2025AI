@@ -98,6 +98,14 @@ class BaseConfig(BaseSettings):
     PITY_ERROR: ClassVar[str] = "pity_error"
     PITY_INFO: ClassVar[str] = "pity_info"
 
+    # AI 配置（Phase 4）
+    AI_OPENAI_API_KEY: str = "sk-cp-EM218vh7ivGgV4fADwh6pc1MHVeuKCeSHF0L1KUEWu3KvxGUkBROvW5fW3GfCI7g0Jki_o7lMx1RYSb_o3lHAefqsd0kW_ZPxU7AvKN-IhvtQJcOb6qmCBo"
+    AI_OPENAI_BASE_URL: str = "https://api.minimaxi.com/anthropic"
+    AI_MODEL: str = "MiniMax-M2.7"
+    AI_MAX_TOKENS: int = 4000
+    AI_TEMPERATURE: float = 0.7
+    AI_DAILY_LIMIT: int = 994182
+
 
 class DevConfig(BaseConfig):
     model_config = SettingsConfigDict(env_file=os.path.join(ROOT, "conf", "dev.env"))

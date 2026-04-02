@@ -53,7 +53,12 @@ backend/
 │   ├── schema/              # Pydantic v2 验证模型（注意不是 schemas）
 │   │   ├── scheduler.py      # 调度 Schema（Phase 2）
 │   │   └── test_suite.py     # 测试套件 Schema（Phase 3）
+│   └── ai_schema.py        # AI Schema（Phase 4）
 │   ├── core/                # 核心业务逻辑（用例执行引擎、参数解析）
+│   │   └── ai/              # AI 服务（Phase 4）
+│   │       ├── base.py          # AI 服务基类
+│   │       ├── openai_service.py # OpenAI/MiniMax API 实现
+│   │       └── prompt_template.py # Prompt 模板
 │   ├── middleware/           # 中间件（CORS、错误处理、请求日志）
 │   ├── utils/                # 工具函数（JWT、Redis、调度器等）
 │   │   ├── scheduler.py      # 调度器核心（Phase 2）
@@ -101,6 +106,18 @@ Request → CORS Middleware → Error Middleware → Router → DAO (@connect管
 - **持久化**：使用 `SQLAlchemyJobStore` 将任务存储在 MySQL 的 `apscheduler_jobs` 表
 - **任务类型**：支持 `http`、`sql`、`redis`、`python`、`testcase`、`test_plan`
 - **执行记录**：`PityTaskExecution` 模型记录每次执行的开始/结束时间、状态、结果
+
+### AI 测试用例生成（Phase 4）
+
+- **AI 服务**：`app/core/ai/openai_service.py` 封装 OpenAI/MiniMax API 调用
+- **Prompt 模板**：`app/core/ai/prompt_template.py` 管理各类 Prompt
+- **API 端点**：
+  - `POST /testcase/ai/generate` — 自然语言描述生成用例
+  - `POST /testcase/ai/enhance` — AI 增强断言
+  - `POST /testcase/ai/batch-generate` — OpenAPI 批量生成
+  - `POST /testcase/ai/parse-curl` — cURL 解析生成
+  - `GET /testcase/ai/models` — 获取可用模型
+- **配置项**（`config.py`）：`AI_OPENAI_API_KEY`、`AI_OPENAI_BASE_URL`、`AI_MODEL`
 
 ### 测试套件系统（Phase 3）
 
