@@ -10,6 +10,11 @@ uvicorn main:pity --reload                        # 开发模式热重载
 alembic revision --autogenerate -m "描述"          # 生成数据库迁移
 alembic upgrade head                              # 执行迁移
 pip install -r requirements.txt                   # 安装依赖
+
+# Celery Worker（独立终端）
+celery -A celery_app worker --loglevel=info        # 启动 Worker 处理异步任务
+celery -A celery_app flower --port=5555           # 启动 Flower 监控面板（可选）
+celery -A celery_app beat --loglevel=info        # 启动 Beat 周期任务调度（可选）
 ```
 
 环境变量 `pity_env=dev`（默认）读 `conf/dev.env`，`pity_env=pro` 读 `conf/pro.env`。
@@ -27,6 +32,7 @@ backend/
 ├── conf/                   # 环境配置
 │   ├── dev.env             # 开发环境（MySQL、Redis、OAuth 等）
 │   └── pro.env             # 生产环境
+├── celery_app.py          # Celery 应用配置（Phase 5）
 ├── app/
 │   ├── routers/            # API 路由（按模块目录组织）
 │   │   ├── auth/           # 认证（注册、登录、GitHub OAuth）
@@ -40,6 +46,7 @@ backend/
 │   │   ├── operation/       # 操作日志
 │   │   ├── scheduler/       # 任务调度（Phase 2）
 │   ├── test_suite/       # 测试套件管理（Phase 3）
+│   ├── task/            # Celery 异步任务（Phase 5）
 │   └── request/         # HTTP 请求 / Mock 录制
 │   ├── models/              # SQLAlchemy 数据模型
 │   │   ├── basic.py         # PityBase 抽象基类
@@ -63,6 +70,8 @@ backend/
 │   ├── utils/                # 工具函数（JWT、Redis、调度器等）
 │   │   ├── scheduler.py      # 调度器核心（Phase 2）
 │   │   └── suite_executor.py # 测试套件执行器（Phase 3）
+│   └── tasks/                # Celery 异步任务（Phase 5）
+│       └── ai_tasks.py       # AI 异步任务（生成、增强、批量）
 │   ├── enums/                # 枚举类型
 │   ├── exception/            # 自定义异常
 │   └── handler/              # 处理器
@@ -76,7 +85,7 @@ backend/
 
 应用入口 `main.py` 定义 `lifespan` 上下文管理器，通过 `pity.router.lifespan_context = lifespan` 注册。启动时初始化：
 1. Redis 连接
-2. APScheduler 定时任务调度器（支持 MySQL 持久化）
+2. APScheduler 定时任务调度器（测试计划 cro，支持 MySQL 持久化），Celery异步任务(AI 生成)
 3. 数据库自动建表
 
 ### 请求处理链
@@ -106,6 +115,21 @@ Request → CORS Middleware → Error Middleware → Router → DAO (@connect管
 - **持久化**：使用 `SQLAlchemyJobStore` 将任务存储在 MySQL 的 `apscheduler_jobs` 表
 - **任务类型**：支持 `http`、`sql`、`redis`、`python`、`testcase`、`test_plan`
 - **执行记录**：`PityTaskExecution` 模型记录每次执行的开始/结束时间、状态、结果
+
+### Celery 异步任务系统（Phase 5）
+
+Celery 与 APScheduler 互补：APScheduler 处理**定时/周期**任务（cron），Celery 处理**异步/排队**任务（队列）。
+
+- **Celery 应用**：`celery_app.py` 配置 broker/backend 为 Redis
+- **任务定义**：`app/tasks/ai_tasks.py`，包含 `generate_testcase`、`enhance_asserts`、`batch_generate`
+- **任务状态查询**：
+  - `GET /task/{task_id}` — 查询任务状态
+  - `GET /task/{task_id}/result` — 获取任务结果
+- **异步 AI 端点**（`app/routers/testcase/ai_router.py`）：
+  - `POST /testcase/ai/generate/async` — 异步生成用例
+  - `POST /testcase/ai/enhance/async` — 异步增强断言
+  - `POST /testcase/ai/batch-generate/async` — 异步批量生成
+- **Celery 配置**：任务序列化 JSON，结果过期 1 小时，软/硬时间限制 4/5 分钟
 
 ### AI 测试用例生成（Phase 4）
 
@@ -220,6 +244,10 @@ Request → CORS Middleware → Error Middleware → Router → DAO (@connect管
 - 发现问题或遗漏功能时，**立即追加**到 Obsidian 计划文档的"后续工作"列表
 - 例如：发现"AI 生成用例没有保存到数据库"，立即添加 `- [ ] AI 生成用例保存到数据库`
 - 解决一个问题后，更新为 `- [x] AI 生成用例保存到数据库（commit号）`
+- 每次开发完成需要测试
+  - 语法检查：`python3 -m py_compile <file>.py`
+  - 启动后端验证服务正常：`python pity.py`
+  - 核心功能手动测试
 
 ### 结束 Phase
 1. **扫描遗漏内容**：
@@ -262,6 +290,9 @@ Request → CORS Middleware → Error Middleware → Router → DAO (@connect管
 
 ## 测试结果
 （命令和响应）
+
+## 测试检查清单：核心功能手动测试
+(表格列出所有接口）
 
 ## 修复的问题
 1. 问题描述 - 解决方案

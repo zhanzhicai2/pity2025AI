@@ -21,6 +21,124 @@ from config import Config
 router = APIRouter(prefix="/testcase/ai", tags=["AI 测试用例生成"])
 
 
+# ==================== 异步任务端点 ====================
+
+@router.post("/generate/async", response_model=dict)
+async def generate_testcase_async(
+    form: AIGenerateRequest,
+    user_info: dict = Depends(Permission()),
+):
+    """
+    AI 异步生成测试用例（Celery 后台执行）
+
+    返回任务 ID，前端通过 /task/{task_id} 查询状态
+    """
+    from app.tasks.ai_tasks import generate_testcase
+    from config import Config
+
+    model = form.model or Config.AI_MODEL
+    user_id = user_info.get("id")
+
+    # 触发 Celery 异步任务
+    task = generate_testcase.delay(
+        content=form.content,
+        input_type=form.input_type,
+        model=model,
+        directory_id=form.directory_id,
+        user_id=user_id,
+        priority=form.priority,
+        status=form.status,
+    )
+
+    return PityResponse.success({
+        "task_id": task.id,
+        "status": task.state,
+        "message": "任务已提交，请在 /task/{task_id} 查询进度",
+    })
+
+
+@router.post("/enhance/async", response_model=dict)
+async def enhance_case_asserts_async(
+    form: AIEnhanceRequest,
+    user_info: dict = Depends(Permission()),
+):
+    """
+    AI 异步增强用例断言（Celery 后台执行）
+
+    返回任务 ID，前端通过 /task/{task_id} 查询状态
+    """
+    import json
+    from app.tasks.ai_tasks import enhance_asserts
+    from app.crud.test_case.TestCaseDao import TestCaseDao
+    from config import Config
+
+    user_id = user_info.get("id")
+    model = form.model or Config.AI_MODEL
+
+    # 获取用例信息
+    case = await TestCaseDao.async_query_test_case(form.case_id)
+    if case is None:
+        return PityResponse.failed(msg="用例不存在")
+
+    case_info = {
+        "name": case.name,
+        "url": case.url,
+        "request_method": case.request_method,
+        "body": json.loads(case.body) if case.body else {},
+    }
+
+    # 触发 Celery 异步任务
+    task = enhance_asserts.delay(
+        case_id=form.case_id,
+        case_info=case_info,
+        response_sample=form.response_sample,
+        model=model,
+        user_id=user_id,
+    )
+
+    return PityResponse.success({
+        "task_id": task.id,
+        "status": task.state,
+        "message": "任务已提交，请在 /task/{task_id} 查询进度",
+    })
+
+
+@router.post("/batch-generate/async", response_model=dict)
+async def batch_generate_testcases_async(
+    form: BatchGenerateRequest,
+    user_info: dict = Depends(Permission()),
+):
+    """
+    AI 异步批量生成测试用例（Celery 后台执行）
+
+    返回任务 ID，前端通过 /task/{task_id} 查询状态
+    """
+    from app.tasks.ai_tasks import batch_generate
+    from config import Config
+
+    model = form.model or Config.AI_MODEL
+    user_id = user_info.get("id")
+
+    # 触发 Celery 异步任务
+    task = batch_generate.delay(
+        openapi_spec=form.openapi_spec,
+        max_cases=form.max_cases,
+        model=model,
+        directory_id=form.directory_id,
+        user_id=user_id,
+        priority=form.priority,
+        status=form.status,
+    )
+
+    return PityResponse.success({
+        "task_id": task.id,
+        "status": task.state,
+        "message": "任务已提交，请在 /task/{task_id} 查询进度",
+    })
+
+
+# ==================== 同步任务端点（保留原有逻辑）====================
+
 @router.post("/generate", response_model=dict)
 async def generate_testcase(
     form: AIGenerateRequest,
