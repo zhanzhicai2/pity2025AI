@@ -4,12 +4,13 @@ from datetime import timedelta, datetime
 import jwt
 from jwt.exceptions import ExpiredSignatureError
 
+from config import Config
+
 EXPIRED_HOUR = 72
 
 
 class UserToken(object):
     key = 'pityToken'
-    salt = 'pity'
 
     @staticmethod
     def get_token(data):
@@ -28,7 +29,13 @@ class UserToken(object):
 
     @staticmethod
     def add_salt(password):
+        """
+        密码加盐哈希（向后兼容 MD5）
+        TODO: 后续迁移到 bcrypt（需要数据库迁移脚本）
+        Salt 从配置文件读取
+        """
+        salt = getattr(Config, 'PASSWORD_SALT', 'pity')
         m = hashlib.md5()
-        bt = f"{password}{UserToken.salt}".encode("utf-8")
+        bt = f"{password}{salt}".encode("utf-8")
         m.update(bt)
         return m.hexdigest()

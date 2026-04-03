@@ -204,6 +204,10 @@ class DbConfigDao(Mapper):
     async def execute(conn, sql):
         row_count = 0
         session = conn.get("session")
+        # SQL 注入防护：仅允许 SELECT 语句
+        sql_stripped = sql.strip().upper()
+        if not sql_stripped.startswith('SELECT'):
+            raise Exception("在线 SQL 功能仅支持 SELECT 查询，请勿执行其他操作")
         async with session() as s:
             async with s.begin():
                 try:

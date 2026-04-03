@@ -98,19 +98,22 @@ class BaseConfig(BaseSettings):
     PITY_ERROR: ClassVar[str] = "pity_error"
     PITY_INFO: ClassVar[str] = "pity_info"
 
-    # AI 配置（Phase 4）
-    AI_OPENAI_API_KEY: str = "sk-api-r8pvMHVLyg1UN1-Ak1MK0VQa4z24DFJl_PxtQgSHt4wXDRVThHOgD2KnHKKVgyG-BYsNCMgGmfBu9lvbRtxAqJKTjIwIOO4IX1IX529yZIgKRNZsFkt28cM"
+    # AI 配置（Phase 4）- 所有敏感信息移至 dev.env
+    AI_OPENAI_API_KEY: str = ""
     AI_OPENAI_BASE_URL: str = "https://api.minimaxi.com/anthropic"
     AI_MODEL: str = "MiniMax-M2.7"
-    # AI_OPENAI_API_KEY: str = "a7442ba4330e488abe01f7a2ba725903.Y6KmB96JxPqVaFpI"
+    # 备选配置（取消注释并填入对应值即可切换）
     # AI_OPENAI_BASE_URL: str = "https://open.bigmodel.cn/api/anthropic"
     # AI_MODEL: str = "GLM-4-Flash"
-    # AI_OPENAI_API_KEY: str = "sk-6800e111e61d4a79a25bb5313b3ef4b7"
     # AI_OPENAI_BASE_URL: str = "https://api.deepseek.com/v1"
     # AI_MODEL: str = "deepseek-chat"
     AI_MAX_TOKENS: int = 4000
     AI_TEMPERATURE: float = 0.7
-    AI_DAILY_LIMIT: int = 994182
+    AI_DAILY_LIMIT: int = 100
+
+    # 密码加密配置 - 移至配置文件
+    PASSWORD_SALT: str = ""  # 密码加盐值
+    PASSWORD_RESET_KEY: str = "pityspwd"  # 密码重置 DES 密钥（8字符）
 
 
 class DevConfig(BaseConfig):
