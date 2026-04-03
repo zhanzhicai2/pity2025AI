@@ -139,3 +139,6 @@ dmypy.json
 .vscode
 
 conf/pro.env
+
+# OMC 会话和状态
+.omc/
