@@ -163,6 +163,17 @@ Request → CORS Middleware → Error Middleware → Router → DAO (@connect管
 4. **Router** — `app/routers/` 创建路由，用 `APIRouter` 定义端点
 5. **Register** — 在 `main.py` 中 `pity.include_router()` 注册
 
+## 架构原则：DAO vs Service
+
+**沿袭 Pity 现有模式**：路由 → DAO → Model，不引入独立的 Service 层。
+
+当以下任一条件满足时，考虑从 DAO 抽取到 Service：
+1. **代码复制**：同一段业务逻辑出现在 2+ 个地方
+2. **职责膨胀**：单个 DAO 超过 800 行且包含 3+ 个不同领域
+3. **跨层复用**：需要在 HTTP、WebSocket、定时任务三种场景复用
+
+拆分原则：从痛点出发，渐进式演进，保持接口兼容。
+
 ## 响应格式
 
 ```json
@@ -196,3 +207,66 @@ Request → CORS Middleware → Error Middleware → Router → DAO (@connect管
 - `app/crud/__init__.py` 启动时通过 `importlib` 动态导入所有 DAO 模块
 - 模型继承：抽象类用 `PityBase`，需要建表的模型直接继承 `Base`
 - 启动方式：`python pity.py`（生产）或 `uvicorn main:pity --reload`（开发）
+
+## Phase 开发流程
+
+每个 Phase 开发遵循以下流程：
+
+### 开始 Phase
+1. 在 `/Users/zhanzhicai/Desktop/Obsidian_one/AI学习笔记/pity/backend` 创建 Phase 计划文档
+2. 文档命名格式：`PhaseX_功能名称实施记录.md`
+
+### 开发过程中
+- 发现问题或遗漏功能时，**立即追加**到 Obsidian 计划文档的"后续工作"列表
+- 例如：发现"AI 生成用例没有保存到数据库"，立即添加 `- [ ] AI 生成用例保存到数据库`
+- 解决一个问题后，更新为 `- [x] AI 生成用例保存到数据库（commit号）`
+
+### 结束 Phase
+1. **扫描遗漏内容**：
+   - 检查本次 Phase 是否有发现但未记录的问题/功能
+   - 检查"后续工作"列表中的待办是否都已完成
+   - 确认所有功能点都已测试
+2. 更新 Obsidian 计划文档：
+   - 标记完成状态
+   - 记录所有 commit
+   - 列出新增/修改文件
+   - 添加测试结果
+   - 记录遇到的问题和解决方案
+   - 更新后续工作清单
+3. 在 `backend/CLAUDE.md` 更新开发阶段状态
+4. 在 `backend/CLAUDE.md` 关键约定中添加本次 Phase 的关键架构说明
+5. 提交代码：`git add -A && git commit -m "feat: Phase X 功能名称"`
+   - 注意：推送由用户手动执行（网络问题导致推送失败的情况较多）
+
+### Obsidian 文档标准结构
+```markdown
+# Phase X：功能名称实施记录
+
+> 日期：YYYY-MM-DD
+> 状态：进行中/已完成
+> 分支：feat/upgrade-plugin-system
+> 最新 Commit：xxxxxx
+
+## 更新记录
+
+| 日期 | Commit | 更新内容 |
+|------|--------|----------|
+| YYYY-MM-DD | xxxxxx | 描述 |
+
+## 完成情况
+- [x] 功能点1
+- [ ] 功能点2
+
+## API 端点
+（表格列出所有接口）
+
+## 测试结果
+（命令和响应）
+
+## 修复的问题
+1. 问题描述 - 解决方案
+
+## 后续工作
+- [ ] 待办1
+- [ ] 待办2
+```
