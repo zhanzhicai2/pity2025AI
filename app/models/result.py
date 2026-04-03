@@ -9,59 +9,50 @@ from app.models import Base
 
 class PityTestResult(Base):
     __tablename__ = 'pity_test_result'
-    id = Column(INT, primary_key=True)
 
+    id = Column(INT, primary_key=True, comment='主键ID')
     directory_id = None
 
-    # 报告id
-    report_id = Column(INT, index=True)
-
-    # case_id
-    case_id = Column(INT, index=True)
-
-    # case_name
-    case_name = Column(String(32))
+    report_id = Column(INT, index=True, comment='报告ID')
+    case_id = Column(INT, index=True, comment='用例ID')
+    case_name = Column(String(32), comment='用例名称')
 
     status = Column(SMALLINT, comment="对应状态 0: 成功 1: 失败 2: 出错 3: 跳过")
 
-    # 开始时间
-    start_at = Column(TIMESTAMP, nullable=False)
-    # 结束时间
-    finished_at = Column(TIMESTAMP, nullable=False)
+    start_at = Column(TIMESTAMP, nullable=False, comment='开始时间')
+    finished_at = Column(TIMESTAMP, nullable=False, comment='结束时间')
 
-    case_log = Column(TEXT)
+    case_log = Column(TEXT, comment='用例日志')
 
-    # 重试次数，预留字段
-    retry = Column(INT, default=0)
+    retry = Column(INT, default=0, comment='重试次数')
 
-    # http状态码
-    status_code = Column(INT)
+    status_code = Column(INT, comment='HTTP状态码')
 
-    url = Column(TEXT)
+    url = Column(TEXT, comment='请求URL')
 
-    body = Column(TEXT)
+    body = Column(TEXT, comment='请求体')
 
-    request_params = Column(TEXT)
+    request_params = Column(TEXT, comment='请求参数')
 
-    data_name = Column(String(24))
+    data_name = Column(String(24), comment='数据名称')
 
-    data_id = Column(INT)
+    data_id = Column(INT, comment='数据ID')
 
-    request_method = Column(String(12), nullable=True)
+    request_method = Column(String(12), nullable=True, comment='请求方法')
 
-    request_headers = Column(TEXT)
+    request_headers = Column(TEXT, comment='请求头')
 
-    cost = Column(String(12), nullable=False)
+    cost = Column(String(12), nullable=False, comment='耗时(ms)')
 
-    asserts = Column(TEXT)
+    asserts = Column(TEXT, comment='断言结果')
 
-    response_headers = Column(TEXT)
+    response_headers = Column(TEXT, comment='响应头')
 
-    response = Column(TEXT)
+    response = Column(TEXT, comment='响应内容')
 
-    cookies = Column(TEXT)
+    cookies = Column(TEXT, comment='Cookies')
 
-    deleted_at = Column(BIGINT, nullable=False, default=0)
+    deleted_at = Column(BIGINT, nullable=False, default=0, comment='删除时间戳')
 
     def __init__(self, report_id: int, case_id: int, case_name: str, status: int,
                  case_log: str, start_at: datetime, finished_at: datetime,

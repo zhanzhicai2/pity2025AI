@@ -11,28 +11,17 @@ _notice_type = {
 
 
 class PityTestPlan(PityBase):
-    project_id = Column(INT, nullable=False)
-    # 测试计划执行环境, 可以多选
-    env = Column(String(64), nullable=False)
-    # 测试计划名称
-    name = Column(String(32), nullable=False)
-    # 测试计划优先级
-    priority = Column(String(3), nullable=False)
-    # cron表达式
-    cron = Column(String(24), nullable=False)
-    # 用例列表
-    case_list = Column(TEXT, nullable=False)
-    # 并行/串行(是否顺序执行)
-    ordered = Column(BOOLEAN, default=False)
-    # 通过率低于这个数会自动发通知
-    pass_rate = Column(SMALLINT, default=80)
-    # 通知用户，目前只有邮箱，后续用户表可能要完善手机号字段，为了通知
-    receiver = Column(TEXT)
-    # 通知方式 0: 邮件 1: 钉钉 2: 企业微信 3: 飞书 支持多选
-    msg_type = Column(TEXT)
-    # 单次case失败重试间隔，默认2分钟
-    retry_minutes = Column(SMALLINT, nullable=False, default=0)
-    # 测试计划是否正在执行中
+    project_id = Column(INT, nullable=False, comment='项目ID')
+    env = Column(String(64), nullable=False, comment='测试计划执行环境(多选)')
+    name = Column(String(32), nullable=False, comment='测试计划名称')
+    priority = Column(String(3), nullable=False, comment='测试计划优先级')
+    cron = Column(String(24), nullable=False, comment='cron表达式')
+    case_list = Column(TEXT, nullable=False, comment='用例列表')
+    ordered = Column(BOOLEAN, default=False, comment='是否顺序执行')
+    pass_rate = Column(SMALLINT, default=80, comment='通过率阈值')
+    receiver = Column(TEXT, comment='通知用户(邮箱)')
+    msg_type = Column(TEXT, comment='通知方式 0:邮件 1:钉钉 2:企业微信 3:飞书')
+    retry_minutes = Column(SMALLINT, nullable=False, default=0, comment='单次case失败重试间隔')
     state = Column(SMALLINT, default=0, comment="0: 未开始 1: 运行中")
 
     __table_args__ = (

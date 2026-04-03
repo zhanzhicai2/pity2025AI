@@ -10,7 +10,7 @@ class TestSuite(Base):
     __tablename__ = "pity_test_suite"
     __allow_unmapped__ = True
 
-    id = Column(INT, primary_key=True)
+    id = Column(INT, primary_key=True, comment='主键ID')
     name = Column(String(128), nullable=False, comment="套件名称")
     description = Column(Text, nullable=True, comment="描述")
     project_id = Column(INT, nullable=False, comment="关联项目 ID")
@@ -19,11 +19,11 @@ class TestSuite(Base):
     retry_on_failure = Column(Boolean, nullable=False, default=False, comment="失败自动重试")
     stop_on_failure = Column(Boolean, nullable=False, default=False, comment="失败停止后续")
     notify_on_failure = Column(Boolean, nullable=False, default=False, comment="失败通知")
-    created_at = Column(TIMESTAMP, nullable=False)
-    updated_at = Column(TIMESTAMP, nullable=False)
-    deleted_at = Column(BIGINT, nullable=False, default=0)
-    create_user = Column(INT, nullable=False)
-    update_user = Column(INT, nullable=False)
+    created_at = Column(TIMESTAMP, nullable=False, comment='创建时间')
+    updated_at = Column(TIMESTAMP, nullable=False, comment='更新时间')
+    deleted_at = Column(BIGINT, nullable=False, default=0, comment='删除时间戳')
+    create_user = Column(INT, nullable=False, comment='创建人ID')
+    update_user = Column(INT, nullable=False, comment='更新人ID')
 
     __fields__: Tuple[Column] = (id,)
     __tag__ = "测试套件"
@@ -35,18 +35,18 @@ class TestSuiteCase(Base):
     __tablename__ = "pity_test_suite_case"
     __allow_unmapped__ = True
 
-    id = Column(INT, primary_key=True)
+    id = Column(INT, primary_key=True, comment='主键ID')
     suite_id = Column(INT, nullable=False, comment="关联套件 ID")
     case_id = Column(INT, nullable=False, comment="关联用例 ID")
     order = Column(INT, nullable=False, default=0, comment="执行顺序")
     enabled = Column(Boolean, nullable=False, default=True, comment="是否启用")
     timeout = Column(INT, nullable=True, comment="超时时间（秒）")
     retry = Column(INT, nullable=False, default=0, comment="重试次数")
-    created_at = Column(TIMESTAMP, nullable=False)
-    updated_at = Column(TIMESTAMP, nullable=False)
-    deleted_at = Column(BIGINT, nullable=False, default=0)
-    create_user = Column(INT, nullable=False)
-    update_user = Column(INT, nullable=False)
+    created_at = Column(TIMESTAMP, nullable=False, comment='创建时间')
+    updated_at = Column(TIMESTAMP, nullable=False, comment='更新时间')
+    deleted_at = Column(BIGINT, nullable=False, default=0, comment='删除时间戳')
+    create_user = Column(INT, nullable=False, comment='创建人ID')
+    update_user = Column(INT, nullable=False, comment='更新人ID')
 
     __fields__: Tuple[Column] = (id,)
     __tag__ = "套件用例"
@@ -58,17 +58,17 @@ class TestSuiteVariable(Base):
     __tablename__ = "pity_test_suite_variable"
     __allow_unmapped__ = True
 
-    id = Column(INT, primary_key=True)
+    id = Column(INT, primary_key=True, comment='主键ID')
     suite_id = Column(INT, nullable=False, comment="关联套件 ID")
     key = Column(String(128), nullable=False, comment="变量名")
     value = Column(Text, nullable=True, comment="变量值")
     var_type = Column(String(16), nullable=False, default="string", comment="类型: string/json/yaml")
     description = Column(String(256), nullable=True, comment="描述")
-    created_at = Column(TIMESTAMP, nullable=False)
-    updated_at = Column(TIMESTAMP, nullable=False)
-    deleted_at = Column(BIGINT, nullable=False, default=0)
-    create_user = Column(INT, nullable=False)
-    update_user = Column(INT, nullable=False)
+    created_at = Column(TIMESTAMP, nullable=False, comment='创建时间')
+    updated_at = Column(TIMESTAMP, nullable=False, comment='更新时间')
+    deleted_at = Column(BIGINT, nullable=False, default=0, comment='删除时间戳')
+    create_user = Column(INT, nullable=False, comment='创建人ID')
+    update_user = Column(INT, nullable=False, comment='更新人ID')
 
     __fields__: Tuple[Column] = (id,)
     __tag__ = "套件变量"
@@ -80,7 +80,7 @@ class TestSuiteExecution(Base):
     __tablename__ = "pity_test_suite_execution"
     __allow_unmapped__ = True
 
-    id = Column(INT, primary_key=True)
+    id = Column(INT, primary_key=True, comment='主键ID')
     suite_id = Column(INT, nullable=False, comment="关联套件 ID")
     trace_id = Column(String(64), nullable=True, comment="追踪 ID")
     status = Column(String(16), nullable=False, default="pending", comment="状态: pending/running/success/failed")
@@ -91,11 +91,11 @@ class TestSuiteExecution(Base):
     start_time = Column(TIMESTAMP, nullable=True, comment="开始时间")
     end_time = Column(TIMESTAMP, nullable=True, comment="结束时间")
     executor = Column(INT, nullable=True, comment="执行人 ID")
-    created_at = Column(TIMESTAMP, nullable=False)
-    updated_at = Column(TIMESTAMP, nullable=False)
-    deleted_at = Column(BIGINT, nullable=False, default=0)
-    create_user = Column(INT, nullable=False)
-    update_user = Column(INT, nullable=False)
+    created_at = Column(TIMESTAMP, nullable=False, comment='创建时间')
+    updated_at = Column(TIMESTAMP, nullable=False, comment='更新时间')
+    deleted_at = Column(BIGINT, nullable=False, default=0, comment='删除时间戳')
+    create_user = Column(INT, nullable=False, comment='创建人ID')
+    update_user = Column(INT, nullable=False, comment='更新人ID')
 
     __fields__: Tuple[Column] = (id,)
     __tag__ = "套件执行"

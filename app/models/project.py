@@ -5,13 +5,15 @@ from app.models.basic import PityBase
 
 class Project(PityBase):
     __tablename__ = 'pity_project'
-    name = Column(String(16))
-    owner = Column(INT)
-    app = Column(String(32))
-    private = Column(BOOLEAN, default=False)
-    description = Column(String(200))
-    avatar = Column(String(128), nullable=True)
-    dingtalk_url = Column(String(128), nullable=True)
+
+    name = Column(String(16), comment='项目名称')
+    owner = Column(INT, comment='项目所有者ID')
+    app = Column(String(32), comment='项目所属应用')
+    private = Column(BOOLEAN, default=False, comment='是否私有')
+    description = Column(String(200), comment='项目描述')
+    avatar = Column(String(128), nullable=True, comment='项目头像URL')
+    dingtalk_url = Column(String(128), nullable=True, comment='钉钉通知URL')
+
     __table_args__ = (
         UniqueConstraint('name', 'deleted_at'),
     )

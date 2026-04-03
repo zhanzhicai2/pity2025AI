@@ -10,13 +10,13 @@ class PityDatabase(PityBase):
         UniqueConstraint('env', 'name', 'deleted_at'),
     )
 
-    env = Column(INT, nullable=False)  # 对应环境id
-    name = Column(String(24), nullable=False)  # 数据库描述名称
-    host = Column(String(64), nullable=False)  # 防止超长域名出现
-    port = Column(INT, nullable=False)
-    username = Column(String(36), nullable=False)
-    password = Column(String(64), nullable=False)
-    database = Column(String(36), nullable=False)
+    env = Column(INT, nullable=False, comment='对应环境ID')
+    name = Column(String(24), nullable=False, comment='数据库描述名称')
+    host = Column(String(64), nullable=False, comment='数据库主机地址')
+    port = Column(INT, nullable=False, comment='数据库端口')
+    username = Column(String(36), nullable=False, comment='用户名')
+    password = Column(String(64), nullable=False, comment='密码')
+    database = Column(String(36), nullable=False, comment='数据库名')
     sql_type = Column(INT, nullable=False, comment="0: mysql 1: postgresql 2: mongo")
     env_info: Environment
 

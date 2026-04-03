@@ -5,12 +5,11 @@ from app.models.basic import PityBase
 
 class GConfig(PityBase):
     __tablename__ = 'pity_gconfig'
-    env = Column(INT)
-    key = Column(String(16))
-    value = Column(TEXT)
+    env = Column(INT, comment='环境ID')
+    key = Column(String(16), comment='配置键名')
+    value = Column(TEXT, comment='配置值')
     key_type = Column(INT, nullable=False, comment="0: string 1: json 2: yaml")
-    # 是否可用
-    enable = Column(BOOLEAN, default=True)
+    enable = Column(BOOLEAN, default=True, comment='是否启用')
 
     __table_args__ = (
         UniqueConstraint('env', 'key', 'deleted_at'),

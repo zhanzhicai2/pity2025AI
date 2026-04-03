@@ -5,9 +5,9 @@ from app.models.basic import PityBase
 
 class ProjectRole(PityBase):
     __tablename__ = 'pity_project_role'
-    user_id = Column(INT, index=True)
-    project_id = Column(INT, index=True)
-    project_role = Column(INT, index=True)
+    user_id = Column(INT, index=True, comment='用户ID')
+    project_id = Column(INT, index=True, comment='项目ID')
+    project_role = Column(INT, index=True, comment='项目角色 0:组员 1:组长 2:负责人')
     __alias__ = dict(user_id="用户", project_id="项目", project_role="角色")
     __tag__ = "项目角色"
     __fields__ = (project_id, user_id, project_role)

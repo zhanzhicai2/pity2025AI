@@ -15,13 +15,12 @@ class Constructor(PityBase):
 
     type = Column(INT, default=0, comment="0: testcase 1: sql 2: redis 3: py脚本 4: 其它")
     name = Column(String(64), comment="数据初始化描述")
-    enable = Column(BOOLEAN, default=True, nullable=False)
-    constructor_json = Column(TEXT, nullable=False)
+    enable = Column(BOOLEAN, default=True, nullable=False, comment='是否启用')
+    constructor_json = Column(TEXT, nullable=False, comment='构造器配置JSON')
     value = Column(String(16), comment="返回值")
     case_id = Column(INT, nullable=False, comment="所属用例id")
     public = Column(BOOLEAN, default=False, comment="是否共享")
     index = Column(INT, comment="前置条件顺序")
-    # 2021-12-18 是否是后置条件
     suffix = Column(BOOLEAN, default=False, comment="是否是后置条件，默认为否")
 
     def __init__(self, type, name, enable, constructor_json, case_id, public, user_id, value="", suffix=False, id=None,

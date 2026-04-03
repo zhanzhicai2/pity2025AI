@@ -9,10 +9,10 @@ from app.models.basic import PityBase
 
 
 class PityTestcaseData(PityBase):
-    env = Column(INT, nullable=False)
-    case_id = Column(INT, nullable=False)
-    name = Column(String(32), nullable=False)
-    json_data = Column(TEXT, nullable=False)
+    env = Column(INT, nullable=False, comment='环境ID')
+    case_id = Column(INT, nullable=False, comment='用例ID')
+    name = Column(String(32), nullable=False, comment='数据名称')
+    json_data = Column(TEXT, nullable=False, comment='测试数据JSON')
 
     __table_args__ = (
         UniqueConstraint('env', 'case_id', 'name', 'deleted_at'),
