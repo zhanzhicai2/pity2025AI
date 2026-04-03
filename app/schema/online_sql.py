@@ -1,10 +1,12 @@
+from typing import Optional
+
 from pydantic import BaseModel, field_validator
 
 from app.schema.base import PityModel
 
 
 class OnlineSQLForm(BaseModel):
-    id: int = None
+    id: Optional[int] = None
     sql: str
 
     @field_validator("sql", 'id')

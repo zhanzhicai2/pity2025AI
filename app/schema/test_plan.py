@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from pydantic import BaseModel, field_validator
 
@@ -6,7 +6,7 @@ from app.schema.base import PityModel
 
 
 class PityTestPlanForm(BaseModel):
-    id: int = None
+    id: Optional[int] = None
     project_id: int
     name: str
     priority: str

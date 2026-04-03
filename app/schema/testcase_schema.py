@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from pydantic import BaseModel, field_validator
 
@@ -11,7 +11,7 @@ from app.schema.testcase_out_parameters import PityTestCaseOutParametersForm
 
 
 class ListTestCaseForm(BaseModel):
-    directory_id: int = None
+    directory_id: Optional[int] = None
     name: str = ""
     create_user: str = ""
 
@@ -21,17 +21,17 @@ class DeleteTestCaseDto(BaseModel):
 
 
 class TestCaseForm(BaseModel):
-    id: int = None
+    id: Optional[int] = None
     priority: str
     url: str = ""
     name: str = ""
     case_type: int = 0
-    base_path: str = None
-    tag: str = None
-    body: str = None
+    base_path: Optional[str] = None
+    tag: Optional[str] = None
+    body: Optional[str] = None
     body_type: int = 0
-    request_headers: str = None
-    request_method: str = None
+    request_headers: Optional[str] = None
+    request_method: Optional[str] = None
     status: int
     out_parameters: List[PityTestCaseOutParametersForm] = []
     directory_id: int
@@ -45,9 +45,9 @@ class TestCaseForm(BaseModel):
 
 
 class TestCaseAssertsForm(BaseModel):
-    id: int = None
+    id: Optional[int] = None
     name: str
-    case_id: int = None
+    case_id: Optional[int] = None
     assert_type: str
     expected: str
     actually: str
@@ -58,7 +58,7 @@ class TestCaseAssertsForm(BaseModel):
 
 
 class TestCaseInfo(BaseModel):
-    case: TestCaseForm = None
+    case: Optional[TestCaseForm] = None
     asserts: List[TestCaseAssertsForm] = []
     data: List[PityTestcaseDataForm] = []
     constructor: List[ConstructorForm] = []

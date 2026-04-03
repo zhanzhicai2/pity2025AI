@@ -66,8 +66,9 @@ async def login_with_github(code: str):
             user = PityResponse.model_to_dict(user, "password")
             expire, token = UserToken.get_token(user)
             return PityResponse.success(dict(token=token, user=user, expire=expire), msg="登录成功")
-    except:
-        # 大部分原因是github出问题，忽略
+    except Exception as e:
+        # 大部分原因是github出问题，记录日志
+        UserDao.log.error(f"GitHub登录失败: {e}")
         return PityResponse.failed(code=110, msg="登录超时, 请稍后再试")
 
 
@@ -140,5 +141,5 @@ async def check_reset_url(token: str):
     try:
         email = Des.des_decrypt(token)
         return PityResponse.success(email)
-    except:
+    except Exception:
         return PityResponse.failed("重置链接不存在, 请不要无脑尝试")
