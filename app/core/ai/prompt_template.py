@@ -31,16 +31,16 @@ class PromptTemplate:
 
 ## API 描述
 {api_description}
-
+{rag_context}
 ## 要求
 1. 用例名称要简洁明确，反映 API 的核心功能
 2. URL 使用相对路径（不带域名）
-3. 请求体中的测试数据要真实可用（用户名不要用 admin，密码用占位符如 ${password}）
+3. 请求体中的测试数据要真实可用（用户名不要用 admin，密码用占位符如 ${{password}}）
 4. 断言必须包含：
    - HTTP 状态码验证（status_code）
    - 业务状态码验证（如 code=0 表示成功）
 5. 响应 JSONPath 格式：$.data.xxx 或 $.code
-6. 如果是 GET 请求，body_type 设为 0，body 设为 {{}}
+6. 如果是 GET 请求，body_type 设为 0，body 设为 {}
 """
 
     # 断言增强 Prompt
@@ -200,9 +200,20 @@ class PromptTemplate:
 4. 生成基础断言
 """
 
-    def generate_case_prompt(self, api_description: str) -> str:
+    # RAG 上下文模板
+    RAG_CONTEXT_TEMPLATE = """
+
+## 参考知识库文档
+以下是从知识库中检索到的相关文档，可作为测试用例设计的参考：
+{rag_docs}
+
+---
+"""
+
+    def generate_case_prompt(self, api_description: str, rag_docs: str = "") -> str:
         """生成用例 Prompt"""
-        return self.GENERATE_CASE_TEMPLATE.replace("{api_description}", api_description)
+        rag_context = self.RAG_CONTEXT_TEMPLATE.replace("{rag_docs}", rag_docs) if rag_docs else ""
+        return self.GENERATE_CASE_TEMPLATE.replace("{api_description}", api_description).replace("{rag_context}", rag_context)
 
     def enhance_asserts_prompt(self, case_info: dict, response_sample: str) -> str:
         """增强断言 Prompt"""

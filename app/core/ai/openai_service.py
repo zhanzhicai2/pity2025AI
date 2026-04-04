@@ -94,11 +94,13 @@ class OpenAIService(AIService):
         Args:
             api_description: API 描述文本
             **kwargs: 可选参数
+                - rag_docs: RAG 检索到的相关文档字符串
 
         Returns:
             测试用例配置字典
         """
-        prompt = self.prompt_template.generate_case_prompt(api_description)
+        rag_docs = kwargs.get("rag_docs", "")
+        prompt = self.prompt_template.generate_case_prompt(api_description, rag_docs=rag_docs)
         messages = [{"role": "user", "content": prompt}]
 
         response = await self.chat(messages)

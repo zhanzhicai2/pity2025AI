@@ -14,6 +14,7 @@ class AIGenerateRequest(BaseModel):
     model: Optional[str] = None  # 覆盖默认模型
     priority: str = "P3"
     status: int = 3  # 1=调试中 2=关闭 3=正常
+    use_rag: bool = False  # 是否使用 RAG 知识库检索增强
 
 
 class AIEnhanceRequest(BaseModel):

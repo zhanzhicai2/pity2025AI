@@ -1,10 +1,12 @@
 from typing import List
 
 from fastapi import APIRouter, Depends
+from loguru import logger
 
 from app.core.ai import OpenAIService
 from app.handler.fatcory import PityResponse
 from app.routers import Permission
+from app.services.rag_service import VectorStoreService
 from app.schema.ai_schema import (
     AIGenerateRequest,
     AIGenerateResponse,
@@ -156,7 +158,22 @@ async def generate_testcase(
     # 根据输入类型调用不同的生成方法
     user_id = user_info.get("id")
     if form.input_type == "text":
-        result = await ai_service.generate_testcase(form.content)
+        rag_docs = ""
+        if form.use_rag:
+            try:
+                vs = VectorStoreService.get_instance()
+                rag_results = vs.similarity_search_with_rerank(form.content, top_k=5, initial_k=20)
+                if rag_results.get("results"):
+                    docs_text = "\n\n".join([
+                        f"【文档 {i+1}】{r['content']}"
+                        for i, r in enumerate(rag_results["results"])
+                    ])
+                    rag_docs = docs_text
+                    logger.bind(name=Config.PITY_INFO).info(f"RAG 检索到 {len(rag_results['results'])} 条相关文档")
+            except Exception as e:
+                logger.bind(name=Config.PITY_ERROR).warning(f"RAG 检索失败: {e}")
+
+        result = await ai_service.generate_testcase(form.content, rag_docs=rag_docs)
         # 保存到数据库
         case = await _save_generated_case(form, result, user_id)
         return PityResponse.success({
