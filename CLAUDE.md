@@ -2,6 +2,17 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## 项目结构确认
+
+确认我现在工作的目录：
+- Pity 前端：/Users/zhanzhicai/Desktop/py/pity/frontend
+- Pity 后端：/Users/zhanzhicai/Desktop/py/pity/backend
+-
+## Git 状态
+前端 │ /Users/zhanzhicai/Desktop/py/pity/frontend │ feat/upgrade-plugin-system
+后端 │ /Users/zhanzhicai/Desktop/py/pity/backend  │ feat/upgrade-plugin-system
+分开提交：backend 和 frontend 单独 commit，只提交不推送
+
 ## 启动命令
 
 ```bash
@@ -62,9 +73,13 @@ backend/
 │   │   └── test_suite.py     # 测试套件 Schema（Phase 3）
 │   └── ai_schema.py        # AI Schema（Phase 4）
 │   ├── core/                # 核心业务逻辑（用例执行引擎、参数解析）
-│   │   └── ai/              # AI 服务（Phase 4）
+│   │   └── ai/              # AI 服务（Phase 4-5）
 │   │       ├── base.py          # AI 服务基类
 │   │       ├── openai_service.py # OpenAI/MiniMax API 实现
+│   │       ├── graph/           # LangGraph 工作流（Phase 5）
+│   │       │   ├── state.py     # 状态定义（TypedDict）
+│   │       │   ├── nodes.py     # 节点定义（retrieval/generate/review）
+│   │       │   └── builder.py   # 工作流构建器
 │   │       └── prompt_template.py # Prompt 模板
 │   ├── middleware/           # 中间件（CORS、错误处理、请求日志）
 │   ├── utils/                # 工具函数（JWT、Redis、调度器等）
@@ -131,12 +146,18 @@ Celery 与 APScheduler 互补：APScheduler 处理**定时/周期**任务（cron
   - `POST /testcase/ai/batch-generate/async` — 异步批量生成
 - **Celery 配置**：任务序列化 JSON，结果过期 1 小时，软/硬时间限制 4/5 分钟
 
-### AI 测试用例生成（Phase 4）
+### AI 测试用例生成（Phase 4-5）
 
 - **AI 服务**：`app/core/ai/openai_service.py` 封装 OpenAI/MiniMax API 调用
 - **Prompt 模板**：`app/core/ai/prompt_template.py` 管理各类 Prompt
+- **LangGraph 工作流**（Phase 5）：`app/core/ai/graph/` 实现 RAG → 生成 → 审查流程
+  - `StateGraph` + `TypedDict` 定义状态
+  - `retrieval` 节点：RAG 知识库检索
+  - `generate` 节点：AI 生成测试用例
+  - `review` 节点：AI 自我审查用例
 - **API 端点**：
   - `POST /testcase/ai/generate` — 自然语言描述生成用例
+  - `POST /testcase/ai/generate/graph` — LangGraph 工作流生成（Phase 5）
   - `POST /testcase/ai/enhance` — AI 增强断言
   - `POST /testcase/ai/batch-generate` — OpenAPI 批量生成
   - `POST /testcase/ai/parse-curl` — cURL 解析生成
