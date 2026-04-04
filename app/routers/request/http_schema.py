@@ -1,3 +1,5 @@
+from typing import Optional
+
 from pydantic import BaseModel, field_validator
 
 from app.enums.RequestBodyEnum import BodyType
@@ -7,7 +9,7 @@ from app.exception.error import ParamsError
 class HttpRequestForm(BaseModel):
     method: str
     url: str
-    body: str = None
+    body: Optional[str] = None
     body_type: BodyType = BodyType.none
     headers: dict = {}
 

@@ -83,6 +83,8 @@ def error_map(error_type: str, field: str, msg: str = None):
         return f"参数: {field} 类型不正确"
     if "type_error" in error_type:
         return f"参数: {field} 类型不合法"
+    # Fallback for any unhandled error types
+    return f"参数: {field} {msg or error_type}"
 
 
 @pity.exception_handler(RequestValidationError)
