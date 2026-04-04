@@ -14,9 +14,10 @@ class DataPoolDao(Mapper):
     @classmethod
     async def insert_record(cls, form: DataPoolRecordForm, user_id: int):
         try:
+            import time
             async with async_session() as session:
                 async with session.begin():
-                    data = DataPoolRecord(**form.model_dump(), user_id=user_id)
+                    data = DataPoolRecord(**form.model_dump(), user_id=user_id, created_at=int(time.time() * 1000))
                     session.add(data)
                     await session.flush()
                     await session.refresh(data)
@@ -77,8 +78,9 @@ class DataPoolDao(Mapper):
     ):
         try:
             async with async_session() as session:
-                # 构建查询条件
-                conditions = [DataPoolRecord.deleted_at == 0]
+                # 构建查询条件（兼容 NULL 和 0）
+                from sqlalchemy import or_
+                conditions = [or_(DataPoolRecord.deleted_at == 0, DataPoolRecord.deleted_at.is_(None))]
                 if user_id:
                     conditions.append(DataPoolRecord.user_id == user_id)
                 if tool_name:

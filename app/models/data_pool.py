@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, JSON, Boolean, DateTime
+from sqlalchemy import Column, Integer, String, JSON, Boolean, BIGINT
 from sqlalchemy.sql import func
 
 from app.models.basic import Base
@@ -16,7 +16,7 @@ class DataPoolRecord(Base):
     output_data = Column(JSON, nullable=True, comment="输出数据")
     tags = Column(JSON, nullable=True, comment="标签")
     is_favorite = Column(Boolean, default=False, comment="是否收藏")
-    created_at = Column(DateTime, server_default=func.now(), comment="创建时间")
-    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now(), comment="更新时间")
-    deleted_at = Column(DateTime, nullable=True, comment="删除时间")
+    created_at = Column(BIGINT, nullable=False, default=0, comment="创建时间戳")
+    updated_at = Column(BIGINT, nullable=False, default=0, comment="更新时间戳")
+    deleted_at = Column(BIGINT, nullable=False, default=0, comment="删除时间戳")
     update_user = Column(Integer, nullable=True, comment="更新人")

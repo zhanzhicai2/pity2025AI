@@ -7,7 +7,7 @@ from fastapi import APIRouter, Depends, Query
 
 from app.core.data_pool import get_tool_list, get_tool_categories, generate_data
 from app.crud.data_pool.DataPoolDao import DataPoolDao
-from app.middleware.Auth import Permission
+from app.routers import Permission
 from app.schema.data_pool import (
     DataPoolRecordForm,
     DataPoolGenerateForm,
@@ -116,7 +116,7 @@ async def list_records(
                 "output_data": r.output_data,
                 "tags": r.tags,
                 "is_favorite": r.is_favorite,
-                "created_at": r.created_at.isoformat() if r.created_at else None
+                "created_at": r.created_at
             })
 
         return {
