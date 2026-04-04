@@ -158,6 +158,28 @@ async def search_knowledge(
     return PityResponse.success(response)
 
 
+@router.post("/search-v2")
+async def search_knowledge_v2(
+    body: dict,
+    user_info: dict = Depends(get_current_user),
+):
+    """检索知识库（带 Rerank 精排）"""
+    query: str = body.get("query", "")
+    top_k: int = body.get("top_k", 10)
+    initial_k: int = body.get("initial_k", 50)
+    use_cache: bool = body.get("use_cache", False)  # Rerank 结果默认不缓存
+
+    try:
+        vector_store = VectorStoreService.get_instance()
+        results = vector_store.similarity_search_with_rerank(
+            query, top_k=top_k, initial_k=initial_k
+        )
+    except Exception as e:
+        return PityResponse.failed(f"检索失败: {e}")
+
+    return PityResponse.success(results)
+
+
 @router.get("/list")
 async def list_documents(
     page: int = 1,

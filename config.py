@@ -124,6 +124,9 @@ class BaseConfig(BaseSettings):
     CHUNK_SIZE: int = 1000
     CHUNK_OVERLAP: int = 200
     RETRIEVAL_TOP_K: int = 10
+    # Rerank 配置（Phase 2）
+    RERANK_MODEL: str = "gte-rerank"
+    RERANK_TOP_K: int = 5
 
 
 class DevConfig(BaseConfig):

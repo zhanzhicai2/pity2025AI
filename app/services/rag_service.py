@@ -6,7 +6,7 @@ from typing import Optional
 
 import chromadb
 from chromadb.config import Settings
-from dashscope import TextEmbedding
+from dashscope import TextEmbedding, TextReRank
 
 from config import Config
 from loguru import logger
@@ -96,6 +96,34 @@ class VectorStoreService:
         )
         return results
 
+    def similarity_search_with_rerank(self, query: str, top_k: int = None, initial_k: int = 50) -> dict:
+        """向量检索 + Rerank 精排"""
+        if top_k is None:
+            top_k = Config.RERANK_TOP_K
+        # 第一阶段：向量检索，取更多结果
+        raw_results = self.similarity_search(query, top_k=initial_k)
+        # 提取文档文本
+        raw_docs = raw_results.get("documents", [[]])[0] if raw_results.get("documents") else []
+        if not raw_docs:
+            return {"query": query, "results": [], "reranked": False}
+        # 提取对应的 metadata 和 distance
+        metadatas = raw_results.get("metadatas", [[]])[0] if raw_results.get("metadatas") else []
+        distances = raw_results.get("distances", [[]])[0] if raw_results.get("distances") else []
+        # Rerank 精排
+        reranker = RerankService()
+        reranked = reranker.rerank(query, raw_docs, top_k=top_k)
+        # 组装结果，保留原始 metadata 和 vector distance
+        results = []
+        for r in reranked:
+            idx = r["index"]
+            results.append({
+                "content": r["document"],
+                "metadata": metadatas[idx] if idx < len(metadatas) else {},
+                "distance": distances[idx] if idx < len(distances) else None,
+                "relevance_score": r["relevance_score"],
+            })
+        return {"query": query, "results": results, "reranked": True}
+
     def delete_document(self, doc_id: str):
         """删除文档的所有 chunks"""
         collection = self.client.get_collection(name=self.collection_name)
@@ -112,3 +140,35 @@ class VectorStoreService:
             "name": collection.name,
             "count": collection.count(),
         }
+
+
+class RerankService:
+    """DashScope Rerank 精排服务"""
+
+    def __init__(self):
+        self.model = Config.RERANK_MODEL
+        self.api_key = Config.DASHSCOPE_API_KEY
+
+    def rerank(self, query: str, documents: list[str], top_k: int = None) -> list[dict]:
+        """对文档列表进行 Rerank 精排"""
+        if top_k is None:
+            top_k = Config.RERANK_TOP_K
+        if not documents:
+            return []
+        response = TextReRank.call(
+            model=self.model,
+            query=query,
+            documents=documents,
+            top_k=min(top_k, len(documents)),
+            api_key=self.api_key
+        )
+        if response.status_code != 200:
+            raise Exception(f"Rerank failed: {response.message}")
+        return [
+            {
+                "index": r.index,
+                "relevance_score": r.relevance_score,
+                "document": r.document or documents[r.index],
+            }
+            for r in response.output.results
+        ]
