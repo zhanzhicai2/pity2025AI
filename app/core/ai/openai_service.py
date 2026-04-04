@@ -47,9 +47,20 @@ class OpenAIService(AIService):
             "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json",
         }
+        # 将 LangChain 消息对象转换为 dict 格式
+        serialized_messages = []
+        for msg in messages:
+            if hasattr(msg, "to_dict"):
+                serialized_messages.append(msg.to_dict())
+            elif isinstance(msg, dict):
+                serialized_messages.append(msg)
+            else:
+                # 兜底：假设是字符串或可直接序列化的对象
+                serialized_messages.append({"role": "user", "content": str(msg)})
+
         payload = {
             "model": model or self.default_model,
-            "messages": messages,
+            "messages": serialized_messages,
             "temperature": temperature,
             "max_tokens": max_tokens,
         }

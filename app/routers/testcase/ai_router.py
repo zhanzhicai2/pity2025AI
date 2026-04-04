@@ -423,6 +423,60 @@ async def list_models():
     })
 
 
+@router.post("/generate/graph", response_model=dict)
+async def generate_testcase_with_graph(
+    form: AIGenerateRequest,
+    user_info: dict = Depends(Permission()),
+):
+    """
+    AI 生成测试用例（LangGraph 工作流）
+
+    支持 RAG 检索 -> AI 生成 -> 自我审查 的完整流程
+    """
+    from app.core.ai.graph.builder import build_case_generation_graph
+
+    user_id = user_info.get("id")
+
+    # 构建并执行 Graph
+    graph = build_case_generation_graph()
+    initial_state = {
+        "api_description": form.content,
+        "user_id": user_id,
+        "use_rag": form.use_rag,
+        "rag_docs": [],
+        "generated_case": None,
+        "review_result": None,
+        "error": None,
+        "final_case": None,
+        "success": False,
+    }
+
+    result = await graph.ainvoke(initial_state)
+
+    if not result.get("success"):
+        return PityResponse.failed(msg=result.get("error", "生成失败"))
+
+    generated_case = result.get("generated_case", {})
+    if not generated_case:
+        return PityResponse.failed(msg="未生成有效用例")
+
+    # 保存到数据库
+    case = await _save_generated_case(form, generated_case, user_id)
+
+    return PityResponse.success({
+        "case_id": case.id,
+        "name": generated_case.get("name", "AI 生成用例"),
+        "url": generated_case.get("url", "/"),
+        "request_method": generated_case.get("request_method", "POST"),
+        "body_type": generated_case.get("body_type", 0),
+        "body": generated_case.get("body"),
+        "request_headers": generated_case.get("request_headers"),
+        "asserts": generated_case.get("asserts", []),
+        "review_result": result.get("review_result"),
+        "use_rag": form.use_rag,
+    })
+
+
 # ==================== 内部方法 ====================
 
 async def _save_generated_case(form: AIGenerateRequest, config: dict, user_id: int):
