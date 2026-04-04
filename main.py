@@ -30,6 +30,7 @@ from app.routers.workspace import router as workspace_router
 from app.routers.scheduler import router as scheduler_router
 from app.routers.test_suite import router as test_suite_router
 from app.routers.rag import router as rag_router
+from app.routers.data_pool import router as data_pool_router
 from app.routers.task import celery_router
 from app.utils.scheduler import Scheduler
 from config import Config, PITY_ENV, BANNER
@@ -116,6 +117,7 @@ pity.include_router(scheduler_router, dependencies=[Depends(request_info)])
 pity.include_router(test_suite_router, dependencies=[Depends(request_info)])
 pity.include_router(celery_router, dependencies=[Depends(request_info)])
 pity.include_router(rag_router, dependencies=[Depends(request_info)])
+pity.include_router(data_pool_router, dependencies=[Depends(request_info)])
 
 # pity.mount("/statics", StaticFiles(directory="statics"), name="statics")
 
