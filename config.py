@@ -115,6 +115,16 @@ class BaseConfig(BaseSettings):
     PASSWORD_SALT: str = ""  # 密码加盐值
     PASSWORD_RESET_KEY: str = "pityspwd"  # 密码重置 DES 密钥（8字符）
 
+    # RAG 配置（Phase RAG）
+    CHROMA_HOST: str = "localhost"
+    CHROMA_PORT: int = 5500
+    CHROMA_COLLECTION_NAME: str = "pity_knowledge_base"
+    DASHSCOPE_API_KEY: str = ""
+    EMBEDDING_MODEL: str = "text-embedding-v1"
+    CHUNK_SIZE: int = 1000
+    CHUNK_OVERLAP: int = 200
+    RETRIEVAL_TOP_K: int = 10
+
 
 class DevConfig(BaseConfig):
     model_config = SettingsConfigDict(env_file=os.path.join(ROOT, "conf", "dev.env"))

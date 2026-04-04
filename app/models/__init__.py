@@ -102,3 +102,6 @@ from app.models.scheduler import PityPeriodicTask, PityCrontabSchedule, PityInte
 
 # 导入 test_suite 相关模型（用于自动建表）
 from app.models.test_suite import TestSuite, TestSuiteCase, TestSuiteVariable, TestSuiteExecution
+
+# 导入 knowledge_base 相关模型（用于自动建表）
+from app.models.knowledge_base import KnowledgeBase
