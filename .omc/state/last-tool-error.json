@@ -1,7 +1,7 @@
 {
   "tool_name": "Bash",
-  "tool_input_preview": "{\"command\":\"git add app/routers/testcase/ai_router.py && git commit -m \\\"$(cat <<'EOF'\\nfeat: AI 生成用例自动保存到数据库\\n\\n- /generate (text) 端点添加保存功能\\n- /generate (curl) 端点保持保存功能\\n\\nCo-Authored-By: Claude Opus...",
-  "error": "Exit code 128\n[feat/upgrade-plugin-system 471417a] feat: AI 生成用例自动保存到数据库\n 1 file changed, 7 insertions(+)\nfatal: unable to access 'https://github.com/zhanzhicai2/pity2025AI.git/': Failed to connect to github.com port 443 after 75002 ms: Couldn't connect to server",
-  "timestamp": "2026-04-02T16:18:26.605Z",
-  "retry_count": 1
+  "tool_input_preview": "{\"command\":\"ls -la /Users/zhanzhicai/Desktop/py/N-Tester/frontend/src/pages/\",\"description\":\"Check N-Tester frontend pages\"}",
+  "error": "Exit code 1\nls: /Users/zhanzhicai/Desktop/py/N-Tester/frontend/src/pages/: No such file or directory",
+  "timestamp": "2026-04-04T21:10:21.782Z",
+  "retry_count": 2
 }

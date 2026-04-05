@@ -1,5 +1,5 @@
 import json
-from typing import Optional
+from typing import Optional, AsyncIterator
 
 import httpx
 from loguru import logger
@@ -96,6 +96,78 @@ class OpenAIService(AIService):
             raise Exception("AI API 请求超时，请检查网络连接或稍后重试")
         except Exception as e:
             logger.bind(name=Config.PITY_ERROR).error(f"AI API 请求异常: {e}")
+            raise
+
+    async def chat_stream(
+        self,
+        messages: list,
+        model: Optional[str] = None,
+        temperature: float = 0.7,
+        max_tokens: int = 4000,
+    ) -> AsyncIterator[str]:
+        """
+        发送对话请求到 AI 服务（流式响应）
+        """
+        base = self.base_url.rstrip("/")
+        if "minimaxi" in base:
+            base = base.replace("/anthropic", "").rstrip("/")
+            url = f"{base}/v1/chat/completions"
+        elif "bigmodel" in base:
+            url = f"{base}/api/paas/v4/chat/completions"
+        elif base.endswith("/v1") or base.endswith("/v1/"):
+            url = f"{base}/chat/completions"
+        else:
+            url = f"{base}/v1/chat/completions"
+
+        headers = {
+            "Authorization": f"Bearer {self.api_key}",
+            "Content-Type": "application/json",
+        }
+
+        serialized_messages = []
+        for msg in messages:
+            if hasattr(msg, "to_dict"):
+                serialized_messages.append(msg.to_dict())
+            elif isinstance(msg, dict):
+                serialized_messages.append(msg)
+            else:
+                serialized_messages.append({"role": "user", "content": str(msg)})
+
+        payload = {
+            "model": model or self.default_model,
+            "messages": serialized_messages,
+            "temperature": temperature,
+            "max_tokens": max_tokens,
+            "stream": True,
+        }
+
+        try:
+            async with httpx.AsyncClient(timeout=120.0) as client:
+                async with client.stream("POST", url, headers=headers, json=payload) as response:
+                    response.raise_for_status()
+                    async for line in response.aiter_lines():
+                        if line.startswith("data: "):
+                            data = line[6:]
+                            if data == "[DONE]":
+                                break
+                            try:
+                                chunk_data = json.loads(data)
+                                delta = chunk_data.get("choices", [{}])[0].get("delta", {})
+                                content = delta.get("content", "")
+                                if content:
+                                    yield content
+                            except json.JSONDecodeError:
+                                continue
+        except httpx.HTTPStatusError as e:
+            error_detail = e.response.text
+            status_code = e.response.status_code
+            logger.bind(name=Config.PITY_ERROR).error(f"AI API HTTP 错误 [{status_code}]: {error_detail}")
+            raise Exception(f"AI API 请求失败 [{status_code}]")
+        except httpx.ConnectError as e:
+            logger.bind(name=Config.PITY_ERROR).error(f"AI API 连接失败: {e}")
+            raise Exception("AI API 连接失败")
+        except Exception as e:
+            logger.bind(name=Config.PITY_ERROR).error(f"AI API 流式响应异常: {e}")
             raise
 
     async def generate_testcase(self, api_description: str, **kwargs) -> dict:

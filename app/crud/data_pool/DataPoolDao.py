@@ -1,4 +1,5 @@
 from typing import List, Optional
+from datetime import datetime
 
 from sqlalchemy import select
 
@@ -14,10 +15,9 @@ class DataPoolDao(Mapper):
     @classmethod
     async def insert_record(cls, form: DataPoolRecordForm, user_id: int):
         try:
-            import time
             async with async_session() as session:
                 async with session.begin():
-                    data = DataPoolRecord(**form.model_dump(), user_id=user_id, created_at=int(time.time() * 1000))
+                    data = DataPoolRecord(**form.model_dump(), user_id=user_id, created_at=datetime.now())
                     session.add(data)
                     await session.flush()
                     await session.refresh(data)
