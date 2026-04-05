@@ -17,9 +17,11 @@ from app.schema.knowledge_base_schema import (
     RetrievalResponse,
     RetrievalResult,
 )
+from app.schema.context_compress import CompressionRequest, CompressionResponse
 from app.services.cache_service import CacheService
 from app.services.document_parser import DocumentParser
 from app.services.rag_service import VectorStoreService
+from app.core.ai.context_compressor import context_compressor, hierarchical_compressor
 from config import Config
 from app.handler.fatcory import PityResponse
 
@@ -250,3 +252,128 @@ async def delete_document(
         return PityResponse.success(msg="删除成功")
     except Exception as e:
         return PityResponse.failed(f"删除失败: {e}")
+
+
+@router.post("/compress")
+async def compress_context(
+    body: CompressionRequest,
+    user_info: dict = Depends(get_current_user),
+):
+    """压缩上下文 - Phase 16"""
+    try:
+        # 根据压缩级别选择压缩器
+        if body.compression_level == "sentence":
+            compressor = hierarchical_compressor
+            result = await compressor.compress_hierarchical(
+                query=body.query,
+                documents=body.documents,
+                max_context_length=body.max_context_length,
+                level="sentence"
+            )
+        elif body.compression_level == "paragraph":
+            compressor = hierarchical_compressor
+            result = await compressor.compress_hierarchical(
+                query=body.query,
+                documents=body.documents,
+                max_context_length=body.max_context_length,
+                level="paragraph"
+            )
+        else:  # auto
+            result = await context_compressor.compress(
+                query=body.query,
+                documents=body.documents,
+                max_context_length=body.max_context_length
+            )
+
+        return PityResponse.success(result)
+    except Exception as e:
+        return PityResponse.failed(f"上下文压缩失败: {e}")
+
+
+@router.post("/search-with-compress")
+async def search_with_compress(
+    body: dict,
+    user_info: dict = Depends(get_current_user),
+):
+    """检索并压缩 - Phase 16"""
+    query: str = body.get("query", "")
+    top_k: int = body.get("top_k", 10)
+    compress: bool = body.get("compress", True)
+    compression_level: str = body.get("compression_level", "auto")
+    max_context_length: int = body.get("max_context_length", 4000)
+
+    try:
+        # 1. 向量检索
+        vector_store = VectorStoreService.get_instance()
+        results = vector_store.similarity_search_with_rerank(query, top_k=top_k)
+
+        if not results.get("results"):
+            return PityResponse.success({
+                "query": query,
+                "compressed_context": "",
+                "chunks": [],
+                "summary": "未检索到相关文档"
+            })
+
+        # 2. 提取文档列表
+        documents = [
+            {
+                "content": r.get("content", ""),
+                "metadata": r.get("metadata", {}),
+                "distance": r.get("distance")
+            }
+            for r in results["results"]
+        ]
+
+        # 3. 压缩
+        if compress:
+            if compression_level == "sentence":
+                compressor = hierarchical_compressor
+                compressed = await compressor.compress_hierarchical(
+                    query=query,
+                    documents=documents,
+                    max_context_length=max_context_length,
+                    level="sentence"
+                )
+            elif compression_level == "paragraph":
+                compressor = hierarchical_compressor
+                compressed = await compressor.compress_hierarchical(
+                    query=query,
+                    documents=documents,
+                    max_context_length=max_context_length,
+                    level="paragraph"
+                )
+            else:
+                compressed = await context_compressor.compress(
+                    query=query,
+                    documents=documents,
+                    max_context_length=max_context_length
+                )
+
+            # 4. 拼接压缩后的上下文
+            compressed_context = "\n\n".join([
+                c["content"] for c in compressed.get("compressed_chunks", [])
+            ])
+
+            return PityResponse.success({
+                "query": query,
+                "compressed_context": compressed_context,
+                "chunks": compressed.get("compressed_chunks", []),
+                "summary": compressed.get("summary", ""),
+                "original_count": compressed.get("original_count", 0),
+                "compressed_count": compressed.get("compressed_count", 0),
+            })
+        else:
+            # 不压缩，直接拼接
+            raw_context = "\n\n".join([d.get("content", "") for d in documents])
+            return PityResponse.success({
+                "query": query,
+                "compressed_context": raw_context,
+                "chunks": documents,
+                "summary": f"未压缩，共 {len(documents)} 个文档",
+                "original_count": len(documents),
+                "compressed_count": len(documents),
+            })
+
+    except Exception as e:
+        return PityResponse.failed(f"检索压缩失败: {e}")
