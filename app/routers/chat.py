@@ -289,11 +289,16 @@ async def get_models(user_info: dict = Depends(get_current_user)):
     """获取可用的 AI 模型列表"""
     try:
         from config import Config
+        # 映射前端展示ID到实际模型名
         models = [
-            {"id": "minimax", "name": "MiniMax", "enabled": bool(Config.AI_OPENAI_API_KEY)},
-            {"id": "deepseek", "name": "DeepSeek", "enabled": bool(Config.AI_OPENAI_API_KEY)},
-            {"id": "zhipu", "name": "智谱 GLM", "enabled": bool(Config.AI_OPENAI_API_KEY)},
+            {"id": Config.AI_MODEL, "name": "MiniMax", "enabled": bool(Config.AI_OPENAI_API_KEY)},
         ]
+        # 如果配置了备选模型，添加 DeepSeek
+        if "deepseek" in Config.AI_OPENAI_BASE_URL.lower():
+            models.append({"id": "deepseek-chat", "name": "DeepSeek", "enabled": bool(Config.AI_OPENAI_API_KEY)})
+        # 如果配置了智谱
+        if "bigmodel" in Config.AI_OPENAI_BASE_URL.lower():
+            models.append({"id": Config.AI_MODEL, "name": "智谱 GLM", "enabled": bool(Config.AI_OPENAI_API_KEY)})
         return {"code": 0, "data": models, "msg": "success"}
     except Exception as e:
         logger.error(f"获取模型列表失败: {e}")

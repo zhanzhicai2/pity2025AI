@@ -111,3 +111,6 @@ from app.models.data_pool import DataPoolRecord
 
 # 导入 chat 相关模型（用于自动建表）
 from app.models.chat import ChatSession, ChatMessage
+
+# 导入 webhook 相关模型（用于自动建表）
+from app.models.webhook import WebhookConfig, NotificationHistory, TaskNotificationSetting
