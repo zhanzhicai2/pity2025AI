@@ -181,15 +181,15 @@
       "type": "file"
     },
     {
-      "path": "CLAUDE.md",
-      "accessCount": 12,
-      "lastAccessed": 1775336850521,
+      "path": "main.py",
+      "accessCount": 13,
+      "lastAccessed": 1775363896569,
       "type": "directory"
     },
     {
-      "path": "main.py",
-      "accessCount": 10,
-      "lastAccessed": 1775360016142,
+      "path": "CLAUDE.md",
+      "accessCount": 12,
+      "lastAccessed": 1775336850521,
       "type": "directory"
     },
     {
@@ -232,6 +232,12 @@
       "path": "app/models/data_pool.py",
       "accessCount": 2,
       "lastAccessed": 1775334309517,
+      "type": "file"
+    },
+    {
+      "path": "app/core/openapi_parser.py",
+      "accessCount": 2,
+      "lastAccessed": 1775363686604,
       "type": "file"
     },
     {
@@ -323,6 +329,18 @@
       "accessCount": 1,
       "lastAccessed": 1775359828267,
       "type": "directory"
+    },
+    {
+      "path": "app/schema/openapi.py",
+      "accessCount": 1,
+      "lastAccessed": 1775363770662,
+      "type": "file"
+    },
+    {
+      "path": "app/routers/openapi.py",
+      "accessCount": 1,
+      "lastAccessed": 1775363787803,
+      "type": "file"
     }
   ],
   "userDirectives": []
