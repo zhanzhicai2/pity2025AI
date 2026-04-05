@@ -193,6 +193,12 @@
       "type": "directory"
     },
     {
+      "path": "app/core/ai/context_compressor.py",
+      "accessCount": 11,
+      "lastAccessed": 1775365429528,
+      "type": "file"
+    },
+    {
       "path": "app/crud/data_pool/DataPoolDao.py",
       "accessCount": 8,
       "lastAccessed": 1775334433352,
@@ -340,6 +346,18 @@
       "path": "app/routers/openapi.py",
       "accessCount": 1,
       "lastAccessed": 1775363787803,
+      "type": "file"
+    },
+    {
+      "path": "app/services",
+      "accessCount": 1,
+      "lastAccessed": 1775365243915,
+      "type": "directory"
+    },
+    {
+      "path": "app/services/cache_service.py",
+      "accessCount": 1,
+      "lastAccessed": 1775365254782,
       "type": "file"
     }
   ],

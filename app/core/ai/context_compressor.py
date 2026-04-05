@@ -2,6 +2,7 @@
 上下文压缩器
 优化 RAG 检索效果，压缩无关内容，保留关键信息
 """
+import hashlib
 import json
 from typing import List, Dict, Any, Optional
 from dataclasses import dataclass
@@ -9,6 +10,7 @@ from dataclasses import dataclass
 from loguru import logger
 
 from app.core.ai.openai_service import ai_service
+from app.services.cache_service import CacheService
 
 
 @dataclass
@@ -26,14 +28,36 @@ class ContextCompressor:
     使用 LLM 判断每个 chunk 的相关性，移除无关内容
     """
 
-    def __init__(self, compression_model: Optional[str] = None):
+    def __init__(self, compression_model: Optional[str] = None, use_cache: bool = True):
         """
         初始化压缩器
 
         Args:
             compression_model: 用于压缩的模型（默认使用配置的 AI 模型）
+            use_cache: 是否使用缓存
         """
         self.compression_model = compression_model
+        self.use_cache = use_cache
+        self._cache = None
+
+    def _get_cache(self) -> Optional[CacheService]:
+        """获取缓存服务实例"""
+        if not self.use_cache:
+            return None
+        try:
+            if self._cache is None:
+                self._cache = CacheService()
+            return self._cache
+        except Exception as e:
+            logger.bind(name=None).warning(f"缓存服务不可用: {e}")
+            return None
+
+    def _make_cache_key(self, query: str, documents: List[Dict[str, Any]]) -> str:
+        """生成缓存 key"""
+        # 使用 query + documents 内容的 hash 作为 key
+        doc_contents = "|".join([d.get("content", "")[:100] for d in documents])
+        raw = f"{query}:{doc_contents}"
+        return hashlib.md5(raw.encode("utf-8")).hexdigest()
 
     async def compress(
         self,
@@ -59,6 +83,15 @@ class ContextCompressor:
                 "original_count": 0,
                 "compressed_count": 0,
             }
+
+        # 检查缓存
+        cache = self._get_cache()
+        if cache:
+            cache_key = self._make_cache_key(query, documents)
+            cached = cache.get("compress", cache_key)
+            if cached:
+                logger.bind(name=None).debug(f"压缩缓存命中: {cache_key}")
+                return cached
 
         # 1. 评估每个文档与查询的相关性
         relevance_scores = await self._score_relevance(query, documents)
@@ -106,7 +139,7 @@ class ContextCompressor:
                     ))
                 break
 
-        return {
+        result = {
             "compressed_chunks": [
                 {
                     "content": c.content,
@@ -120,6 +153,13 @@ class ContextCompressor:
             "original_count": len(documents),
             "compressed_count": len(compressed),
         }
+
+        # 写入缓存
+        if cache:
+            cache_key = self._make_cache_key(query, documents)
+            cache.set("compress", cache_key, result, ttl=3600)
+
+        return result
 
     async def _score_relevance(
         self,
@@ -268,8 +308,8 @@ class HierarchicalCompressor(ContextCompressor):
     支持文档 → 段落 → 句子逐层压缩
     """
 
-    def __init__(self, compression_model: Optional[str] = None):
-        super().__init__(compression_model)
+    def __init__(self, compression_model: Optional[str] = None, use_cache: bool = True):
+        super().__init__(compression_model, use_cache)
 
     async def compress_hierarchical(
         self,
