@@ -222,8 +222,12 @@ async def send_message(
             content=response
         )
 
-        # 更新会话时间
-        await ChatSessionDao.update_session(session_id, user_id)
+        # 如果会话标题是默认的"新对话"，更新为用户提问的前20字
+        if session.title == "新对话" or session.title is None:
+            title = form.content[:20] + "..." if len(form.content) > 20 else form.content
+            await ChatSessionDao.update_session(session_id, user_id, title=title)
+        else:
+            await ChatSessionDao.update_session(session_id, user_id)
 
         return {
             "code": 0,

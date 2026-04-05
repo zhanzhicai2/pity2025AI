@@ -187,6 +187,12 @@
       "type": "directory"
     },
     {
+      "path": "app/routers/chat.py",
+      "accessCount": 13,
+      "lastAccessed": 1775367093934,
+      "type": "file"
+    },
+    {
       "path": "CLAUDE.md",
       "accessCount": 12,
       "lastAccessed": 1775336850521,
@@ -196,12 +202,6 @@
       "path": "app/core/ai/context_compressor.py",
       "accessCount": 12,
       "lastAccessed": 1775365791346,
-      "type": "file"
-    },
-    {
-      "path": "app/routers/chat.py",
-      "accessCount": 10,
-      "lastAccessed": 1775366055485,
       "type": "file"
     },
     {
@@ -262,6 +262,12 @@
       "path": "app/services/cache_service.py",
       "accessCount": 2,
       "lastAccessed": 1775365811096,
+      "type": "file"
+    },
+    {
+      "path": "app/crud/chat/__init__.py",
+      "accessCount": 2,
+      "lastAccessed": 1775367047331,
       "type": "file"
     },
     {
@@ -331,12 +337,6 @@
       "type": "file"
     },
     {
-      "path": "app/crud/chat/__init__.py",
-      "accessCount": 1,
-      "lastAccessed": 1775359767576,
-      "type": "file"
-    },
-    {
       "path": "app/core/ai",
       "accessCount": 1,
       "lastAccessed": 1775359828267,
@@ -358,6 +358,12 @@
       "path": "app/services",
       "accessCount": 1,
       "lastAccessed": 1775365243915,
+      "type": "directory"
+    },
+    {
+      "path": "app/crud",
+      "accessCount": 1,
+      "lastAccessed": 1775367034857,
       "type": "directory"
     }
   ],
