@@ -27,6 +27,7 @@ class SendMessageForm(BaseModel):
     """发送消息表单"""
     content: str = Field(..., description="消息内容")
     model: Optional[str] = Field(None, description="使用的模型")
+    use_rag: bool = Field(False, description="是否启用知识库检索增强")
 
 
 class ChatSessionResponse(BaseModel):

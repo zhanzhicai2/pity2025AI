@@ -10,6 +10,8 @@ import json
 import asyncio
 
 from app.core.ai.openai_service import OpenAIService
+from app.core.ai.context_compressor import context_compressor
+from app.services.rag_service import VectorStoreService
 from app.crud.chat import ChatSessionDao, ChatMessageDao
 from app.routers import Permission
 from app.schema.chat import SendMessageForm, ChatSessionResponse, ChatMessageResponse
@@ -178,6 +180,37 @@ async def send_message(
         messages, _ = await ChatMessageDao.get_messages(session_id, 0, 100)
         history = [{"role": m.role, "content": m.content} for m in messages]
 
+        # RAG 增强：如果启用知识库检索
+        rag_context = ""
+        if form.use_rag:
+            try:
+                vector_store = VectorStoreService.get_instance()
+                results = vector_store.similarity_search_with_rerank(form.content, top_k=5)
+                if results.get("results"):
+                    documents = [
+                        {"content": r.get("content", ""), "metadata": r.get("metadata", {})}
+                        for r in results["results"]
+                    ]
+                    compressed = await context_compressor.compress(
+                        query=form.content,
+                        documents=documents,
+                        max_context_length=2000
+                    )
+                    if compressed.get("compressed_chunks"):
+                        rag_context = "\n\n".join([
+                            c["content"] for c in compressed["compressed_chunks"]
+                        ])
+                        logger.info(f"RAG增强: 从 {compressed['original_count']} 个文档压缩为 {compressed['compressed_count']} 个相关块")
+            except Exception as e:
+                logger.error(f"RAG检索失败: {e}")
+
+        # 如果有 RAG 上下文，添加到 system 消息
+        if rag_context:
+            history.insert(0, {
+                "role": "system",
+                "content": f"你是一个专业的AI助手。请基于以下知识库内容回答用户的问题。\n\n知识库内容：\n{rag_context}\n\n如果知识库中有相关信息，请结合知识库回答。如果没有相关信息，请说明并基于你的知识回答。"
+            })
+
         # 调用 AI 服务
         ai_service = OpenAIService()
         response = await ai_service.chat(history, model=form.model or session.model)
@@ -291,7 +324,7 @@ async def get_models(user_info: dict = Depends(get_current_user)):
         from config import Config
         # 映射前端展示ID到实际模型名
         models = [
-            {"id": Config.AI_MODEL, "name": "MiniMax", "enabled": bool(Config.AI_OPENAI_API_KEY)},
+            {"id": Config.AI_MODEL, "name": "MiniMax M2.7", "enabled": bool(Config.AI_OPENAI_API_KEY)},
         ]
         # 如果配置了备选模型，添加 DeepSeek
         if "deepseek" in Config.AI_OPENAI_BASE_URL.lower():
