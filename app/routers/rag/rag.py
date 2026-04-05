@@ -240,6 +240,14 @@ async def delete_document(
         except Exception:
             pass
 
+        # 清除上下文压缩缓存
+        try:
+            from app.services.cache_service import CacheService
+            cache = CacheService()
+            cache.invalidate_compress_cache()
+        except Exception:
+            pass
+
         # 删除文件
         try:
             if os.path.exists(record.file_path):

@@ -157,7 +157,7 @@ class ContextCompressor:
         # 写入缓存
         if cache:
             cache_key = self._make_cache_key(query, documents)
-            cache.set("compress", cache_key, result, ttl=3600)
+            cache.set("compress", cache_key, result, ttl=604800)  # 一周
 
         return result
 

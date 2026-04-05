@@ -50,3 +50,7 @@ class CacheService:
         keys = self.client.keys(pattern)
         if keys:
             self.client.delete(*keys)
+
+    def invalidate_compress_cache(self):
+        """清除上下文压缩缓存"""
+        self.invalidate_prefix("compress")

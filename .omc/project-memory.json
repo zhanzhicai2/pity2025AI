@@ -194,8 +194,8 @@
     },
     {
       "path": "app/core/ai/context_compressor.py",
-      "accessCount": 11,
-      "lastAccessed": 1775365429528,
+      "accessCount": 12,
+      "lastAccessed": 1775365791346,
       "type": "file"
     },
     {
@@ -223,6 +223,12 @@
       "type": "directory"
     },
     {
+      "path": "app/routers/rag/rag.py",
+      "accessCount": 3,
+      "lastAccessed": 1775365840480,
+      "type": "file"
+    },
+    {
       "path": "app/crud/__init__.py",
       "accessCount": 2,
       "lastAccessed": 1775332737438,
@@ -244,6 +250,12 @@
       "path": "app/core/openapi_parser.py",
       "accessCount": 2,
       "lastAccessed": 1775363686604,
+      "type": "file"
+    },
+    {
+      "path": "app/services/cache_service.py",
+      "accessCount": 2,
+      "lastAccessed": 1775365811096,
       "type": "file"
     },
     {
@@ -281,12 +293,6 @@
       "accessCount": 1,
       "lastAccessed": 1775333274688,
       "type": "directory"
-    },
-    {
-      "path": "app/routers/rag/rag.py",
-      "accessCount": 1,
-      "lastAccessed": 1775333306673,
-      "type": "file"
     },
     {
       "path": "app",
@@ -353,12 +359,6 @@
       "accessCount": 1,
       "lastAccessed": 1775365243915,
       "type": "directory"
-    },
-    {
-      "path": "app/services/cache_service.py",
-      "accessCount": 1,
-      "lastAccessed": 1775365254782,
-      "type": "file"
     }
   ],
   "userDirectives": []
