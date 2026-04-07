@@ -16,6 +16,7 @@ from starlette.types import Message
 
 from app.exception.request import AuthException
 from app.exception.request import PermissionException
+from app.utils.logger import Log
 from config import Config
 
 sys.path.append(__file__)
@@ -63,7 +64,7 @@ async def errors_handling(request: Request, call_next):
         # await set_body(request, await request.body())
         return await call_next(request)
     except Exception as exc:
-        traceback.print_exc()
+        Log("errors_handling").exception(str(exc))
         return JSONResponse(
             status_code=status.HTTP_200_OK,
             content=jsonable_encoder({

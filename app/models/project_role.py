@@ -5,6 +5,8 @@ from app.models.basic import PityBase
 
 class ProjectRole(PityBase):
     __tablename__ = 'pity_project_role'
+    __table_args__ = {'comment': '项目角色表', 'mysql_charset': 'utf8mb4'}
+
     user_id = Column(INT, index=True, comment='用户ID')
     project_id = Column(INT, index=True, comment='项目ID')
     project_role = Column(INT, index=True, comment='项目角色 0:组员 1:组长 2:负责人')

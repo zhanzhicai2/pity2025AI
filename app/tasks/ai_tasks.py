@@ -38,7 +38,7 @@ def run_async(coro):
         return loop.run_until_complete(coro)
 
 
-async def _save_case_sync(case_config: dict, directory_id: int, user_id: int, priority: str, status: int):
+async def _save_case_sync(case_config: dict, project_id: int, user_id: int, priority: str, status: int):
     """同步保存生成的用例到数据库"""
     import json
     from app.models import async_session
@@ -51,7 +51,7 @@ async def _save_case_sync(case_config: dict, directory_id: int, user_id: int, pr
     case_form = TestCaseForm(
         name=case_config.get("name", "AI 生成用例"),
         url=case_config.get("url", "/"),
-        directory_id=directory_id,
+        project_id=project_id,
         priority=priority,
         status=status,
         request_type=1,
@@ -117,16 +117,16 @@ def generate_testcase(self, content: str, input_type: str, model: str = None, **
     Returns:
         生成的用例配置
     """
-    from app.core.ai import OpenAIService
+    from app.core.ai.factory import get_ai_service
     from config import Config
 
-    directory_id = kwargs.get("directory_id")
+    project_id = kwargs.get("project_id")
     user_id = kwargs.get("user_id")
     priority = kwargs.get("priority", "P3")
     status = kwargs.get("status", 3)
 
-    model = model or Config.AI_MODEL
-    ai_service = OpenAIService()
+    model = model or None
+    ai_service = run_async(get_ai_service(model_name=model))
 
     try:
         if input_type == "text":
@@ -139,8 +139,8 @@ def generate_testcase(self, content: str, input_type: str, model: str = None, **
             return {"status": "error", "error": f"不支持的输入类型: {input_type}"}
 
         # 保存到数据库
-        if directory_id and user_id:
-            case_id = run_async(_save_case_sync(result, directory_id, user_id, priority, status))
+        if project_id and user_id:
+            case_id = run_async(_save_case_sync(result, project_id, user_id, priority, status))
             result["case_id"] = case_id
             logger.bind(name="celery").info(f"用例已保存到数据库，case_id={case_id}")
 
@@ -222,13 +222,13 @@ def enhance_asserts(self, case_id: int, case_info: Dict, response_sample: str, m
     Returns:
         生成的断言列表
     """
-    from app.core.ai import OpenAIService
+    from app.core.ai.factory import get_ai_service
     from config import Config
 
     user_id = kwargs.get("user_id")
 
-    model = model or Config.AI_MODEL
-    ai_service = OpenAIService()
+    model = model or None
+    ai_service = run_async(get_ai_service(model_name=model))
 
     try:
         result = run_async(ai_service.enhance_asserts(case_info, response_sample))
@@ -277,26 +277,26 @@ def batch_generate(self, openapi_spec: str, max_cases: int = 20, model: str = No
     Returns:
         生成的用例列表
     """
-    from app.core.ai import OpenAIService
+    from app.core.ai.factory import get_ai_service
     from config import Config
 
-    directory_id = kwargs.get("directory_id")
+    project_id = kwargs.get("project_id")
     user_id = kwargs.get("user_id")
     priority = kwargs.get("priority", "P3")
     status = kwargs.get("status", 3)
 
-    model = model or Config.AI_MODEL
-    ai_service = OpenAIService()
+    model = model or None
+    ai_service = run_async(get_ai_service(model_name=model))
 
     try:
         cases_config = run_async(ai_service.batch_generate_from_openapi(openapi_spec, max_cases=max_cases))
 
         # 保存到数据库
         saved_cases = []
-        if directory_id and user_id:
+        if project_id and user_id:
             for case_config in cases_config:
                 try:
-                    case_id = run_async(_save_case_sync(case_config, directory_id, user_id, priority, status))
+                    case_id = run_async(_save_case_sync(case_config, project_id, user_id, priority, status))
                     saved_cases.append({"case_id": case_id, "name": case_config.get("name", "")})
                     logger.bind(name="celery").info(f"批量生成用例已保存，case_id={case_id}")
                 except Exception as e:

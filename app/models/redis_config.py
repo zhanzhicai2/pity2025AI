@@ -6,6 +6,7 @@ from app.models.basic import PityBase
 class PityRedis(PityBase):
     __tablename__ = "pity_redis_info"
     __table_args__ = (
+        {'comment': 'Redis配置表', 'mysql_charset': 'utf8mb4'},
         UniqueConstraint('env', 'name', 'deleted_at'),
     )
 

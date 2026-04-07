@@ -1,3 +1,6 @@
+"""
+数据池记录表
+"""
 from sqlalchemy import Column, Integer, String, JSON, Boolean, BIGINT
 from sqlalchemy.sql import func
 
@@ -7,6 +10,7 @@ from app.models.basic import Base
 class DataPoolRecord(Base):
     """数据池记录"""
     __tablename__ = "data_pool_record"
+    __table_args__ = {'comment': '数据池记录表', 'mysql_charset': 'utf8mb4'}
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(Integer, nullable=False, index=True, comment="用户ID")

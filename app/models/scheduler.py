@@ -8,6 +8,7 @@ from app.models import Base
 class PityPeriodicTask(Base):
     """周期任务配置表"""
     __tablename__ = "pity_periodic_task"
+    __table_args__ = {'comment': '周期任务配置表', 'mysql_charset': 'utf8mb4'}
     __allow_unmapped__ = True
 
     id = Column(INT, primary_key=True, comment='主键ID')
@@ -36,6 +37,7 @@ class PityPeriodicTask(Base):
 class PityCrontabSchedule(Base):
     """Crontab 表达式表"""
     __tablename__ = "pity_crontab_schedule"
+    __table_args__ = {'comment': 'Crontab调度表达式表', 'mysql_charset': 'utf8mb4'}
     __allow_unmapped__ = True
 
     id = Column(INT, primary_key=True, comment='主键ID')
@@ -59,6 +61,7 @@ class PityCrontabSchedule(Base):
 class PityIntervalSchedule(Base):
     """间隔执行配置表"""
     __tablename__ = "pity_interval_schedule"
+    __table_args__ = {'comment': '间隔调度配置表', 'mysql_charset': 'utf8mb4'}
     __allow_unmapped__ = True
 
     id = Column(INT, primary_key=True, comment='主键ID')
@@ -78,6 +81,7 @@ class PityIntervalSchedule(Base):
 class PityTaskExecution(Base):
     """任务执行记录表"""
     __tablename__ = "pity_task_execution"
+    __table_args__ = {'comment': '任务执行记录表', 'mysql_charset': 'utf8mb4'}
     __allow_unmapped__ = True
 
     id = Column(INT, primary_key=True, comment='主键ID')

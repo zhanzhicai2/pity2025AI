@@ -10,14 +10,23 @@ from config import Config
 
 
 class OpenAIService(AIService):
-    """OpenAI 兼容 API 服务（支持 MiniMax 等）"""
+    """OpenAI 兼容 API 服务（支持 MiniMax、DeepSeek、GLM 等）"""
 
-    def __init__(self):
-        self.api_key = Config.AI_OPENAI_API_KEY
-        self.base_url = Config.AI_OPENAI_BASE_URL.rstrip("/")
-        self.default_model = Config.AI_MODEL
-        self.default_temperature = Config.AI_TEMPERATURE
-        self.default_max_tokens = Config.AI_MAX_TOKENS
+    def __init__(
+        self,
+        api_key: str = "",
+        base_url: str = "",
+        model_name: str = "gpt-4",
+        temperature: float = 0.7,
+        max_tokens: int = 4000,
+        provider: str = "openai",
+    ):
+        self.api_key = api_key
+        self.base_url = base_url.rstrip("/") if base_url else ""
+        self.default_model = model_name
+        self.default_temperature = temperature
+        self.default_max_tokens = max_tokens
+        self.provider = provider
         self.prompt_template = PromptTemplate()
 
     async def chat(

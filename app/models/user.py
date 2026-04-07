@@ -7,6 +7,7 @@ from app.models import Base
 
 class User(Base):
     __tablename__ = "pity_user"
+    __table_args__ = {'comment': '用户表', 'mysql_charset': 'utf8mb4'}
 
     id = Column(INT, primary_key=True, comment='主键ID')
     username = Column(String(16), unique=True, index=True, comment='用户名')

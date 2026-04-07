@@ -1,5 +1,6 @@
 """
 测试数据表, 用来存储各个环境下的测试数据，用于数据驱动
+Create Date:
 """
 __author__ = "miluo"
 
@@ -15,6 +16,7 @@ class PityTestcaseData(PityBase):
     json_data = Column(TEXT, nullable=False, comment='测试数据JSON')
 
     __table_args__ = (
+        {'comment': '测试数据表', 'mysql_charset': 'utf8mb4'},
         UniqueConstraint('env', 'case_id', 'name', 'deleted_at'),
     )
 

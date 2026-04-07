@@ -9,6 +9,7 @@ from app.models import Base
 class PityOperationLog(Base):
     """用户操作记录表"""
     __tablename__ = 'pity_operation_log'
+    __table_args__ = {'comment': '操作日志表', 'mysql_charset': 'utf8mb4'}
 
     id = Column(INT, primary_key=True, comment='主键ID')
     user_id = Column(INT, index=True, comment='操作人ID')

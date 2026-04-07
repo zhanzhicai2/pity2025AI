@@ -9,7 +9,7 @@ from dataclasses import dataclass
 
 from loguru import logger
 
-from app.core.ai.openai_service import ai_service
+from app.core.ai.factory import get_ai_service
 from app.services.cache_service import CacheService
 
 
@@ -209,7 +209,8 @@ class ContextCompressor:
 
         try:
             messages = [{"role": "user", "content": prompt}]
-            response = await ai_service.chat(
+            ai_svc = await get_ai_service()
+            response = await ai_svc.chat(
                 messages,
                 model=self.compression_model,
                 temperature=0.1,  # 低温度保证稳定性
@@ -274,7 +275,8 @@ class ContextCompressor:
 
         try:
             messages = [{"role": "user", "content": prompt}]
-            response = await ai_service.chat(
+            ai_svc = await get_ai_service()
+            response = await ai_svc.chat(
                 messages,
                 model=self.compression_model,
                 temperature=0.3,

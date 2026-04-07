@@ -25,6 +25,7 @@ class TestCase(PityBase):
     out_parameters: List[PityTestCaseOutParameters] = None
 
     __table_args__ = (
+        {'comment': '测试用例表', 'mysql_charset': 'utf8mb4'},
         UniqueConstraint('directory_id', 'name', 'deleted_at'),
     )
     __tag__ = "测试用例"

@@ -114,3 +114,9 @@ from app.models.chat import ChatSession, ChatMessage
 
 # 导入 webhook 相关模型（用于自动建表）
 from app.models.webhook import WebhookConfig, NotificationHistory, TaskNotificationSetting
+
+# 导入 llm_config 相关模型（用于自动建表）
+from app.models.llm_config import LLMConfig
+
+# 导入 requirement_document 相关模型（用于自动建表）
+from app.models.requirement_document import RequirementDocument

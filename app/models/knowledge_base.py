@@ -8,6 +8,7 @@ from app.models import Base
 class KnowledgeBase(Base):
     """知识库文档"""
     __tablename__ = "knowledge_base"
+    __table_args__ = {'comment': '知识库文档表', 'mysql_charset': 'utf8mb4'}
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(255), nullable=False, comment="文档名称")

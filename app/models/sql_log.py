@@ -6,6 +6,8 @@ from app.models.database import PityDatabase
 
 class PitySQLHistory(PityBase):
     __tablename__ = "pity_sql_history"
+    __table_args__ = {'comment': 'SQL执行历史表', 'mysql_charset': 'utf8mb4'}
+
     sql = Column(String(1024), comment="sql语句")
     elapsed = Column(INT, comment="请求耗时")
     database_id = Column(INT, comment="操作数据库id")

@@ -9,13 +9,14 @@ from fastapi.responses import StreamingResponse
 import json
 import asyncio
 
-from app.core.ai.openai_service import OpenAIService
+from app.core.ai.factory import get_ai_service
 from app.core.ai.context_compressor import context_compressor
 from app.services.rag_service import VectorStoreService
 from app.crud.chat import ChatSessionDao, ChatMessageDao
 from app.routers import Permission
 from app.schema.chat import SendMessageForm, ChatSessionResponse, ChatMessageResponse
 from app.utils.logger import Log
+from config import Config
 
 logger = Log("chat_router")
 router = APIRouter(prefix="/ai/chat", tags=["AI对话"])
@@ -212,8 +213,10 @@ async def send_message(
             })
 
         # 调用 AI 服务
-        ai_service = OpenAIService()
-        response = await ai_service.chat(history, model=form.model or session.model)
+        model_to_use = form.model or session.model
+        logger.info(f"发送消息 - form.model={form.model}, session.model={session.model}, 最终使用={model_to_use}")
+        ai_service = await get_ai_service(model_name=model_to_use)
+        response = await ai_service.chat(history, model=model_to_use)
 
         # 保存 AI 响应
         assistant_msg = await ChatMessageDao.create_message(
@@ -286,7 +289,8 @@ async def send_message_stream(
             history = [{"role": m.role, "content": m.content} for m in messages[:-1]]
 
             # 调用 AI 流式服务
-            ai_service = OpenAIService()
+            model_to_use = form.model or session.model
+            ai_service = await get_ai_service(model_name=model_to_use)
             full_content = ""
             async for chunk in ai_service.chat_stream(history, model=form.model or session.model):
                 full_content += chunk
@@ -323,19 +327,21 @@ async def send_message_stream(
 
 @router.get("/models", summary="获取可用模型")
 async def get_models(user_info: dict = Depends(get_current_user)):
-    """获取可用的 AI 模型列表"""
+    """获取可用的 AI 模型列表（从数据库读取）"""
     try:
-        from config import Config
-        # 映射前端展示ID到实际模型名
+        from app.crud.llm_config import LLMConfigDao
+
+        configs = await LLMConfigDao.list_configs(is_active=True)
+        default_config = await LLMConfigDao.get_default()
+
         models = [
-            {"id": Config.AI_MODEL, "name": "MiniMax M2.7", "enabled": bool(Config.AI_OPENAI_API_KEY)},
+            {
+                "id": c.name,
+                "name": f"{c.name} ({c.config_name})",
+                "enabled": c.is_active,
+            }
+            for c in configs
         ]
-        # 如果配置了备选模型，添加 DeepSeek
-        if "deepseek" in Config.AI_OPENAI_BASE_URL.lower():
-            models.append({"id": "deepseek-chat", "name": "DeepSeek", "enabled": bool(Config.AI_OPENAI_API_KEY)})
-        # 如果配置了智谱
-        if "bigmodel" in Config.AI_OPENAI_BASE_URL.lower():
-            models.append({"id": Config.AI_MODEL, "name": "智谱 GLM", "enabled": bool(Config.AI_OPENAI_API_KEY)})
         return {"code": 0, "data": models, "msg": "success"}
     except Exception as e:
         logger.error(f"获取模型列表失败: {e}")

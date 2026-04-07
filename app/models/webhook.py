@@ -9,6 +9,7 @@ from app.models.basic import Base
 class WebhookConfig(Base):
     """Webhook 配置"""
     __tablename__ = "webhook_config"
+    __table_args__ = {'comment': 'Webhook配置表', 'mysql_charset': 'utf8mb4'}
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(Integer, nullable=False, index=True, comment="创建者ID")
@@ -29,6 +30,7 @@ class WebhookConfig(Base):
 class NotificationHistory(Base):
     """通知发送历史"""
     __tablename__ = "notification_history"
+    __table_args__ = {'comment': '通知发送历史表', 'mysql_charset': 'utf8mb4'}
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     config_id = Column(Integer, nullable=False, index=True, comment="Webhook配置ID")
@@ -44,6 +46,7 @@ class NotificationHistory(Base):
 class TaskNotificationSetting(Base):
     """任务通知设置"""
     __tablename__ = "task_notification_setting"
+    __table_args__ = {'comment': '任务通知设置表', 'mysql_charset': 'utf8mb4'}
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     task_id = Column(Integer, nullable=False, index=True, comment="任务ID")

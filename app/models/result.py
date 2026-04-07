@@ -9,6 +9,7 @@ from app.models import Base
 
 class PityTestResult(Base):
     __tablename__ = 'pity_test_result'
+    __table_args__ = {'comment': '测试结果表', 'mysql_charset': 'utf8mb4'}
 
     id = Column(INT, primary_key=True, comment='主键ID')
     directory_id = None

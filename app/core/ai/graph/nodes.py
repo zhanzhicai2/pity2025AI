@@ -7,7 +7,7 @@ from typing import Optional
 from langchain_core.messages import HumanMessage, AIMessage
 from loguru import logger
 
-from app.core.ai.openai_service import OpenAIService
+from app.core.ai.factory import get_ai_service
 from app.services.rag_service import VectorStoreService
 from config import Config
 
@@ -58,9 +58,9 @@ class CaseGraphNodes:
         messages.append(HumanMessage(content=api_desc))
 
         try:
-            ai_service = OpenAIService()
-            response = await ai_service.chat(messages)
-            case = ai_service._parse_testcase_response(response)
+            ai_svc = await get_ai_service()
+            response = await ai_svc.chat(messages)
+            case = ai_svc._parse_testcase_response(response)
             logger.bind(name=Config.PITY_INFO).info(f"AI 生成用例成功（retry={retry_count}）: {case.get('name', 'unknown')}")
             return {"generated_case": case, "success": True, "retry_count": retry_count}
         except Exception as e:
@@ -93,8 +93,8 @@ class CaseGraphNodes:
 ```"""
 
         try:
-            ai_service = OpenAIService()
-            response = await ai_service.chat([
+            ai_svc = await get_ai_service()
+            response = await ai_svc.chat([
                 HumanMessage(content=review_prompt)
             ])
             # 解析审查结果

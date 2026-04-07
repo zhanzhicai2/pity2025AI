@@ -8,7 +8,7 @@ class AIGenerateRequest(BaseModel):
     """AI 生成用例请求"""
     model_config = ConfigDict(str_strip_whitespace=True)
 
-    directory_id: int
+    project_id: Optional[int] = None
     input_type: str = "text"  # text, openapi, curl, har
     content: str
     model: Optional[str] = None  # 覆盖默认模型
@@ -30,7 +30,7 @@ class BatchGenerateRequest(BaseModel):
     """批量生成请求（OpenAPI）"""
     model_config = ConfigDict(str_strip_whitespace=True)
 
-    directory_id: int
+    project_id: Optional[int] = None
     openapi_spec: str  # OpenAPI JSON/YAML
     model: Optional[str] = None
     priority: str = "P3"
@@ -42,7 +42,7 @@ class CURLParseRequest(BaseModel):
     """cURL 解析请求"""
     model_config = ConfigDict(str_strip_whitespace=True)
 
-    directory_id: int
+    project_id: Optional[int] = None
     curl_command: str
     model: Optional[str] = None
     priority: str = "P3"

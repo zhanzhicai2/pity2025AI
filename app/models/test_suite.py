@@ -8,6 +8,7 @@ from app.models import Base
 class TestSuite(Base):
     """测试套件"""
     __tablename__ = "pity_test_suite"
+    __table_args__ = {'comment': '测试套件表', 'mysql_charset': 'utf8mb4'}
     __allow_unmapped__ = True
 
     id = Column(INT, primary_key=True, comment='主键ID')
@@ -33,6 +34,7 @@ class TestSuite(Base):
 class TestSuiteCase(Base):
     """测试套件-用例关联"""
     __tablename__ = "pity_test_suite_case"
+    __table_args__ = {'comment': '测试套件用例关联表', 'mysql_charset': 'utf8mb4'}
     __allow_unmapped__ = True
 
     id = Column(INT, primary_key=True, comment='主键ID')
@@ -56,6 +58,7 @@ class TestSuiteCase(Base):
 class TestSuiteVariable(Base):
     """测试套件变量"""
     __tablename__ = "pity_test_suite_variable"
+    __table_args__ = {'comment': '测试套件变量表', 'mysql_charset': 'utf8mb4'}
     __allow_unmapped__ = True
 
     id = Column(INT, primary_key=True, comment='主键ID')
@@ -78,6 +81,7 @@ class TestSuiteVariable(Base):
 class TestSuiteExecution(Base):
     """测试套件执行记录"""
     __tablename__ = "pity_test_suite_execution"
+    __table_args__ = {'comment': '测试套件执行记录表', 'mysql_charset': 'utf8mb4'}
     __allow_unmapped__ = True
 
     id = Column(INT, primary_key=True, comment='主键ID')

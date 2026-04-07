@@ -3,7 +3,7 @@ from typing import List
 from fastapi import APIRouter, Depends
 from loguru import logger
 
-from app.core.ai import OpenAIService
+from app.core.ai.factory import get_ai_service
 from app.handler.fatcory import PityResponse
 from app.routers import Permission
 from app.services.rag_service import VectorStoreService
@@ -38,7 +38,7 @@ async def generate_testcase_async(
     from app.tasks.ai_tasks import generate_testcase
     from config import Config
 
-    model = form.model or Config.AI_MODEL
+    model = form.model or None
     user_id = user_info.get("id")
 
     # 触发 Celery 异步任务
@@ -46,7 +46,7 @@ async def generate_testcase_async(
         content=form.content,
         input_type=form.input_type,
         model=model,
-        directory_id=form.directory_id,
+        project_id=form.project_id,
         user_id=user_id,
         priority=form.priority,
         status=form.status,
@@ -75,7 +75,7 @@ async def enhance_case_asserts_async(
     from config import Config
 
     user_id = user_info.get("id")
-    model = form.model or Config.AI_MODEL
+    model = form.model or None
 
     # 获取用例信息
     case = await TestCaseDao.async_query_test_case(form.case_id)
@@ -118,7 +118,7 @@ async def batch_generate_testcases_async(
     from app.tasks.ai_tasks import batch_generate
     from config import Config
 
-    model = form.model or Config.AI_MODEL
+    model = form.model or None
     user_id = user_info.get("id")
 
     # 触发 Celery 异步任务
@@ -126,7 +126,7 @@ async def batch_generate_testcases_async(
         openapi_spec=form.openapi_spec,
         max_cases=form.max_cases,
         model=model,
-        directory_id=form.directory_id,
+        project_id=form.project_id,
         user_id=user_id,
         priority=form.priority,
         status=form.status,
@@ -151,9 +151,9 @@ async def generate_testcase(
 
     根据自然语言描述、OpenAPI Schema、cURL 等输入生成测试用例
     """
-    model = form.model or Config.AI_MODEL
+    model = form.model or None
 
-    ai_service = OpenAIService()
+    ai_service = await get_ai_service(model_name=model)
 
     # 根据输入类型调用不同的生成方法
     user_id = user_info.get("id")
@@ -235,7 +235,7 @@ async def enhance_case_asserts(
         return PityResponse.failed(msg="用例不存在")
 
     # 调用 AI 生成断言
-    ai_service = OpenAIService()
+    ai_service = await get_ai_service(model_name=model)
     case_info = {
         "name": case.name,
         "url": case.url,
@@ -286,7 +286,7 @@ async def enhance_case_asserts(
         "case_id": form.case_id,
         "asserts": saved_asserts,
         "total": len(saved_asserts),
-        "model": form.model or Config.AI_MODEL,
+        "model": form.model or None,
     })
 
 
@@ -303,9 +303,9 @@ async def batch_generate_testcases(
     from app.crud.test_case.TestCaseDao import TestCaseDao
 
     user_id = user_info.get("id")
-    model = form.model or Config.AI_MODEL
+    model = form.model or None
 
-    ai_service = OpenAIService()
+    ai_service = await get_ai_service(model_name=model)
     cases_config = await ai_service.batch_generate_from_openapi(
         form.openapi_spec,
         max_cases=form.max_cases
@@ -318,7 +318,7 @@ async def batch_generate_testcases(
         try:
             # 构建保存请求
             request = AIGenerateRequest(
-                directory_id=form.directory_id,
+                project_id=form.project_id,
                 input_type="openapi",
                 content=str(case_config),
                 model=model,
@@ -355,14 +355,14 @@ async def parse_curl(
     解析 cURL 命令生成用例
     """
     user_id = user_info.get("id")
-    model = form.model or Config.AI_MODEL
+    model = form.model or None
 
-    ai_service = OpenAIService()
+    ai_service = await get_ai_service(model_name=model)
     result = await ai_service.parse_curl(form.curl_command)
 
     # 保存用例
     request = AIGenerateRequest(
-        directory_id=form.directory_id,
+        project_id=form.project_id,
         input_type="curl",
         content=form.curl_command,
         model=model,
@@ -387,39 +387,28 @@ async def parse_curl(
 @router.get("/models", response_model=dict)
 async def list_models():
     """
-    获取可用 AI 模型列表
+    获取可用 AI 模型列表（从数据库读取）
     """
-    default_model = Config.AI_MODEL
+    from app.crud.llm_config import LLMConfigDao
+
+    configs = await LLMConfigDao.list_configs(is_active=True)
+    default_config = await LLMConfigDao.get_default()
+
+    default_model_name = default_config.name if default_config else None
+
     models = [
         AIModelInfo(
-            name="MiniMax-M2.7",
-            display_name="MiniMax M2.7",
-            description="MiniMax 最新模型，适合中文场景",
-            is_default=(default_model == "MiniMax-M2.7"),
-        ),
-        AIModelInfo(
-            name="gpt-4o",
-            display_name="GPT-4o",
-            description="OpenAI 最新模型，能力最强",
-            is_default=(default_model == "gpt-4o"),
-        ),
-        AIModelInfo(
-            name="gpt-4o-mini",
-            display_name="GPT-4o Mini",
-            description="OpenAI 轻量模型，性价比高",
-            is_default=(default_model == "gpt-4o-mini"),
-        ),
-        AIModelInfo(
-            name="claude-3-5-sonnet",
-            display_name="Claude 3.5 Sonnet",
-            description="Anthropic 中等能力模型",
-            is_default=(default_model == "claude-3-5-sonnet"),
-        ),
+            name=c.name,
+            display_name=f"{c.name} ({c.provider})",
+            description=f"{c.config_name} - {c.provider}",
+            is_default=(default_config and c.id == default_config.id),
+        )
+        for c in configs
     ]
 
     return PityResponse.success({
         "models": [m.model_dump() for m in models],
-        "default_model": default_model,
+        "default_model": default_model_name,
     })
 
 
@@ -498,7 +487,7 @@ async def _save_generated_case(form: AIGenerateRequest, config: dict, user_id: i
     case_form = TestCaseForm(
         name=config.get("name", "AI 生成用例"),
         url=config.get("url", "/"),
-        directory_id=form.directory_id,
+        project_id=form.project_id,
         priority=form.priority,
         status=form.status,
         request_type=1,  # HTTP

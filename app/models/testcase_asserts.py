@@ -5,6 +5,8 @@ from app.models.basic import PityBase
 
 class TestCaseAsserts(PityBase):
     __tablename__ = "pity_testcase_asserts"
+    __table_args__ = {'comment': '用例断言表', 'mysql_charset': 'utf8mb4'}
+
     name = Column(String(32), nullable=False)
     case_id = Column(INT, index=True)
     assert_type = Column(String(16), comment="equal: 等于 not_equal: 不等于 in: 属于")

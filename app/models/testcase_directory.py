@@ -13,6 +13,7 @@ class PityTestcaseDirectory(PityBase):
     __tablename__ = 'pity_testcase_directory'
     # 联合索引，防止同一层次出现同名目录
     __table_args__ = (
+        {'comment': '用例目录表', 'mysql_charset': 'utf8mb4'},
         UniqueConstraint('project_id', 'name', 'parent', 'deleted_at'),
     )
     id = Column(INT, primary_key=True)

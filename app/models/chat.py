@@ -9,6 +9,7 @@ from app.models.basic import Base
 class ChatSession(Base):
     """AI 对话会话"""
     __tablename__ = "chat_session"
+    __table_args__ = {'comment': 'AI对话会话表', 'mysql_charset': 'utf8mb4'}
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(Integer, nullable=False, index=True, comment="用户ID")
@@ -22,6 +23,7 @@ class ChatSession(Base):
 class ChatMessage(Base):
     """AI 对话消息"""
     __tablename__ = "chat_message"
+    __table_args__ = {'comment': 'AI对话消息表', 'mysql_charset': 'utf8mb4'}
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     session_id = Column(Integer, nullable=False, index=True, comment="会话ID")

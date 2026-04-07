@@ -8,6 +8,7 @@ from app.models import Base
 
 class PityReport(Base):
     __tablename__ = 'pity_report'
+    __table_args__ = {'comment': '测试报告表', 'mysql_charset': 'utf8mb4'}
 
     id = Column(INT, primary_key=True, comment='主键ID')
     executor = Column(INT, index=True, comment='执行人ID，0为系统')
