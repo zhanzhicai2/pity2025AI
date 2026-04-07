@@ -7,8 +7,8 @@ class PityTestPlanFollowUserRel(PityBase):
     """测试计划关注用户表"""
     __tablename__ = "pity_testplan_follow_user_rel"
     __table_args__ = (
-        {'comment': '测试计划关注用户表', 'mysql_charset': 'utf8mb4'},
         UniqueConstraint('user_id', 'plan_id', 'deleted_at'),
+        {'comment': '测试计划关注用户表', 'mysql_charset': 'utf8mb4'},
     )
 
     user_id = Column(INT, nullable=False, comment='用户ID')

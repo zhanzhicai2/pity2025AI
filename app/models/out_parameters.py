@@ -7,8 +7,8 @@ class PityTestCaseOutParameters(PityBase):
     """用例出参数据，与用例绑定"""
     __tablename__ = 'pity_out_parameters'
     __table_args__ = (
-        {'comment': '用例出参表', 'mysql_charset': 'utf8mb4'},
         UniqueConstraint('case_id', 'name', 'deleted_at'),
+        {'comment': '用例出参表', 'mysql_charset': 'utf8mb4'},
     )
 
     case_id = Column(INT, nullable=False, comment='用例ID')

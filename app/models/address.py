@@ -10,8 +10,8 @@ from app.models.basic import PityBase
 class PityGateway(PityBase):
     __tablename__ = 'pity_gateway'
     __table_args__ = (
-        {'comment': '网关地址表', 'mysql_charset': 'utf8mb4'},
         UniqueConstraint('env', 'name', 'deleted_at'),
+        {'comment': '网关地址表', 'mysql_charset': 'utf8mb4'},
     )
     env = Column(INT, comment='对应环境')
     name = Column(String(32), comment="网关名称")

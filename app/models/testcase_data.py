@@ -16,8 +16,8 @@ class PityTestcaseData(PityBase):
     json_data = Column(TEXT, nullable=False, comment='测试数据JSON')
 
     __table_args__ = (
-        {'comment': '测试数据表', 'mysql_charset': 'utf8mb4'},
         UniqueConstraint('env', 'case_id', 'name', 'deleted_at'),
+        {'comment': '测试数据表', 'mysql_charset': 'utf8mb4'},
     )
 
     __tablename__ = "pity_testcase_data"

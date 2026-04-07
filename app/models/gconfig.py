@@ -12,8 +12,8 @@ class GConfig(PityBase):
     enable = Column(BOOLEAN, default=True, comment='是否启用')
 
     __table_args__ = (
-        {'comment': '全局配置表', 'mysql_charset': 'utf8mb4'},
         UniqueConstraint('env', 'key', 'deleted_at'),
+        {'comment': '全局配置表', 'mysql_charset': 'utf8mb4'},
     )
 
     __fields__ = (env, key)

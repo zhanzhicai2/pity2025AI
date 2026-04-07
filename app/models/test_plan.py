@@ -25,8 +25,8 @@ class PityTestPlan(PityBase):
     state = Column(SMALLINT, default=0, comment="0: 未开始 1: 运行中")
 
     __table_args__ = (
-        {'comment': '测试计划表', 'mysql_charset': 'utf8mb4'},
         UniqueConstraint('project_id', 'name', 'deleted_at'),
+        {'comment': '测试计划表', 'mysql_charset': 'utf8mb4'},
     )
 
     __tablename__ = "pity_test_plan"

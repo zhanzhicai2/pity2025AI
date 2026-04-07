@@ -10,8 +10,8 @@ from app.models.basic import PityBase
 class Constructor(PityBase):
     __tablename__ = 'pity_constructor'
     __table_args__ = (
-        {'comment': '数据构造器表', 'mysql_charset': 'utf8mb4'},
         UniqueConstraint('case_id', 'suffix', 'name', 'deleted_at'),
+        {'comment': '数据构造器表', 'mysql_charset': 'utf8mb4'},
     )
 
     type = Column(INT, default=0, comment="0: testcase 1: sql 2: redis 3: py脚本 4: 其它")

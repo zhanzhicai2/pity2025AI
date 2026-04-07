@@ -12,8 +12,8 @@ class Environment(PityBase):
     remarks = Column(String(200))
 
     __table_args__ = (
-        {'comment': '环境配置表', 'mysql_charset': 'utf8mb4'},
         UniqueConstraint('name', 'deleted_at'),
+        {'comment': '环境配置表', 'mysql_charset': 'utf8mb4'},
     )
 
     __fields__ = [name]

@@ -15,8 +15,8 @@ class Project(PityBase):
     dingtalk_url = Column(String(128), nullable=True, comment='钉钉通知URL')
 
     __table_args__ = (
-        {'comment': '项目表', 'mysql_charset': 'utf8mb4'},
         UniqueConstraint('name', 'deleted_at'),
+        {'comment': '项目表', 'mysql_charset': 'utf8mb4'},
     )
     __tag__ = "项目"
     __fields__ = (name, owner, app, private, description, avatar, dingtalk_url)

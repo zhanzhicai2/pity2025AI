@@ -7,8 +7,8 @@ from app.models.environment import Environment
 class PityDatabase(PityBase):
     __tablename__ = "pity_database_info"
     __table_args__ = (
-        {'comment': '数据库配置表', 'mysql_charset': 'utf8mb4'},
         UniqueConstraint('env', 'name', 'deleted_at'),
+        {'comment': '数据库配置表', 'mysql_charset': 'utf8mb4'},
     )
 
     env = Column(INT, nullable=False, comment='对应环境ID')

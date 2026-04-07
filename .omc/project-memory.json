@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "lastScanned": 1775306589025,
+  "lastScanned": 1775592836004,
   "projectRoot": "/Users/zhanzhicai/Desktop/py/pity/backend",
   "techStack": {
     "languages": [
@@ -44,19 +44,20 @@
     "__pycache__": {
       "path": "__pycache__",
       "purpose": null,
-      "fileCount": 3,
-      "lastAccessed": 1775306588984,
+      "fileCount": 4,
+      "lastAccessed": 1775592835979,
       "keyFiles": [
         "celery_app.cpython-311.pyc",
         "config.cpython-311.pyc",
-        "config.cpython-313.pyc"
+        "config.cpython-313.pyc",
+        "main.cpython-311.pyc"
       ]
     },
     "alembic": {
       "path": "alembic",
       "purpose": null,
       "fileCount": 3,
-      "lastAccessed": 1775306588985,
+      "lastAccessed": 1775592835979,
       "keyFiles": [
         "README",
         "env.py",
@@ -67,7 +68,7 @@
       "path": "app",
       "purpose": "Application code",
       "fileCount": 2,
-      "lastAccessed": 1775306588986,
+      "lastAccessed": 1775592835980,
       "keyFiles": [
         "__init__.py"
       ]
@@ -76,7 +77,7 @@
       "path": "conf",
       "purpose": null,
       "fileCount": 2,
-      "lastAccessed": 1775306588987,
+      "lastAccessed": 1775592835981,
       "keyFiles": [
         "dev.env",
         "pro.env"
@@ -86,7 +87,7 @@
       "path": "docs",
       "purpose": "Documentation",
       "fileCount": 4,
-      "lastAccessed": 1775306588988,
+      "lastAccessed": 1775592835981,
       "keyFiles": [
         "404.html",
         "index.html",
@@ -97,9 +98,10 @@
     "logs": {
       "path": "logs",
       "purpose": null,
-      "fileCount": 3,
-      "lastAccessed": 1775306588988,
+      "fileCount": 4,
+      "lastAccessed": 1775592835982,
       "keyFiles": [
+        "pity.log",
         "pity_error.log",
         "pity_info.log"
       ]
@@ -108,7 +110,7 @@
       "path": "ops",
       "purpose": null,
       "fileCount": 4,
-      "lastAccessed": 1775306588988,
+      "lastAccessed": 1775592835982,
       "keyFiles": [
         "dev.env.ops",
         "docker-compose.yaml",
@@ -120,7 +122,7 @@
       "path": "pity_proxy",
       "purpose": null,
       "fileCount": 3,
-      "lastAccessed": 1775306588989,
+      "lastAccessed": 1775592835983,
       "keyFiles": [
         "__init__.py",
         "mock.py",
@@ -131,7 +133,7 @@
       "path": "statics",
       "purpose": null,
       "fileCount": 107,
-      "lastAccessed": 1775306588990,
+      "lastAccessed": 1775592835984,
       "keyFiles": [
         "1001.71191389.async.js",
         "1465.3daba643.async.js",
@@ -144,7 +146,7 @@
       "path": "templates",
       "purpose": null,
       "fileCount": 2,
-      "lastAccessed": 1775306588990,
+      "lastAccessed": 1775592835984,
       "keyFiles": [
         "report.html",
         "reset_password.html"
@@ -154,7 +156,7 @@
       "path": "app/middleware",
       "purpose": "Middleware",
       "fileCount": 6,
-      "lastAccessed": 1775306588991,
+      "lastAccessed": 1775592835985,
       "keyFiles": [
         "AsyncHttpClient.py",
         "AsyncHttpClientTest.py",
@@ -164,8 +166,8 @@
     "app/models": {
       "path": "app/models",
       "purpose": "Data models",
-      "fileCount": 28,
-      "lastAccessed": 1775306588993,
+      "fileCount": 33,
+      "lastAccessed": 1775592835985,
       "keyFiles": [
         "__init__.py",
         "address.py",
@@ -175,196 +177,70 @@
   },
   "hotPaths": [
     {
-      "path": "app/routers/data_pool.py",
-      "accessCount": 13,
-      "lastAccessed": 1775334322047,
-      "type": "file"
-    },
-    {
-      "path": "main.py",
-      "accessCount": 13,
-      "lastAccessed": 1775363896569,
-      "type": "directory"
-    },
-    {
-      "path": "app/routers/chat.py",
-      "accessCount": 13,
-      "lastAccessed": 1775367093934,
-      "type": "file"
-    },
-    {
-      "path": "CLAUDE.md",
-      "accessCount": 12,
-      "lastAccessed": 1775336850521,
-      "type": "directory"
-    },
-    {
-      "path": "app/core/ai/context_compressor.py",
-      "accessCount": 12,
-      "lastAccessed": 1775365791346,
-      "type": "file"
-    },
-    {
-      "path": "app/crud/data_pool/DataPoolDao.py",
-      "accessCount": 8,
-      "lastAccessed": 1775334433352,
-      "type": "file"
-    },
-    {
-      "path": "app/core/ai/openai_service.py",
-      "accessCount": 6,
-      "lastAccessed": 1775359897067,
-      "type": "file"
-    },
-    {
-      "path": "app/models/__init__.py",
-      "accessCount": 5,
-      "lastAccessed": 1775359707322,
-      "type": "directory"
-    },
-    {
-      "path": "app/routers/rag/rag.py",
+      "path": "app/models/testcase_directory.py",
       "accessCount": 3,
-      "lastAccessed": 1775365840480,
+      "lastAccessed": 1775592972583,
       "type": "file"
     },
     {
-      "path": "app/schema/chat.py",
-      "accessCount": 3,
-      "lastAccessed": 1775366012494,
-      "type": "file"
-    },
-    {
-      "path": "app/crud/__init__.py",
+      "path": "app/models/database.py",
       "accessCount": 2,
-      "lastAccessed": 1775332737438,
+      "lastAccessed": 1775592890320,
       "type": "file"
     },
     {
-      "path": "app/routers",
+      "path": "app/models/gconfig.py",
       "accessCount": 2,
-      "lastAccessed": 1775334053167,
-      "type": "directory"
+      "lastAccessed": 1775592895742,
+      "type": "file"
     },
     {
-      "path": "app/models/data_pool.py",
+      "path": "app/models/oss_file.py",
       "accessCount": 2,
-      "lastAccessed": 1775334309517,
+      "lastAccessed": 1775592901164,
       "type": "file"
     },
     {
-      "path": "app/core/openapi_parser.py",
+      "path": "app/models/out_parameters.py",
       "accessCount": 2,
-      "lastAccessed": 1775363686604,
+      "lastAccessed": 1775592906143,
       "type": "file"
     },
     {
-      "path": "app/services/cache_service.py",
+      "path": "app/models/project.py",
       "accessCount": 2,
-      "lastAccessed": 1775365811096,
+      "lastAccessed": 1775592911626,
       "type": "file"
     },
     {
-      "path": "app/crud/chat/__init__.py",
+      "path": "app/models/redis_config.py",
       "accessCount": 2,
-      "lastAccessed": 1775367047331,
+      "lastAccessed": 1775592917065,
       "type": "file"
     },
     {
-      "path": "app/core/ai/graph/nodes.py",
-      "accessCount": 1,
-      "lastAccessed": 1775306597161,
+      "path": "app/models/test_case.py",
+      "accessCount": 2,
+      "lastAccessed": 1775592922521,
       "type": "file"
     },
     {
-      "path": "app/crud/test_case/TestcaseDataDao.py",
-      "accessCount": 1,
-      "lastAccessed": 1775332746757,
+      "path": "app/models/test_plan.py",
+      "accessCount": 2,
+      "lastAccessed": 1775592927943,
       "type": "file"
     },
     {
-      "path": "app/schema/testcase_data.py",
-      "accessCount": 1,
-      "lastAccessed": 1775332756874,
+      "path": "app/models/testcase_data.py",
+      "accessCount": 2,
+      "lastAccessed": 1775592933399,
       "type": "file"
     },
     {
-      "path": "app/schema/data_pool.py",
-      "accessCount": 1,
-      "lastAccessed": 1775332780656,
+      "path": "app/models/testplan_follow_user.py",
+      "accessCount": 2,
+      "lastAccessed": 1775592944295,
       "type": "file"
-    },
-    {
-      "path": "app/core/data_pool/__init__.py",
-      "accessCount": 1,
-      "lastAccessed": 1775332906234,
-      "type": "file"
-    },
-    {
-      "path": "app/exception",
-      "accessCount": 1,
-      "lastAccessed": 1775333274688,
-      "type": "directory"
-    },
-    {
-      "path": "app",
-      "accessCount": 1,
-      "lastAccessed": 1775334043336,
-      "type": "directory"
-    },
-    {
-      "path": "app/routers/auth",
-      "accessCount": 1,
-      "lastAccessed": 1775334157892,
-      "type": "directory"
-    },
-    {
-      "path": "app/routers/__init__.py",
-      "accessCount": 1,
-      "lastAccessed": 1775334167604,
-      "type": "file"
-    },
-    {
-      "path": "app/models",
-      "accessCount": 1,
-      "lastAccessed": 1775334285435,
-      "type": "directory"
-    },
-    {
-      "path": "app/models/chat.py",
-      "accessCount": 1,
-      "lastAccessed": 1775359676276,
-      "type": "file"
-    },
-    {
-      "path": "app/core/ai",
-      "accessCount": 1,
-      "lastAccessed": 1775359828267,
-      "type": "directory"
-    },
-    {
-      "path": "app/schema/openapi.py",
-      "accessCount": 1,
-      "lastAccessed": 1775363770662,
-      "type": "file"
-    },
-    {
-      "path": "app/routers/openapi.py",
-      "accessCount": 1,
-      "lastAccessed": 1775363787803,
-      "type": "file"
-    },
-    {
-      "path": "app/services",
-      "accessCount": 1,
-      "lastAccessed": 1775365243915,
-      "type": "directory"
-    },
-    {
-      "path": "app/crud",
-      "accessCount": 1,
-      "lastAccessed": 1775367034857,
-      "type": "directory"
     }
   ],
   "userDirectives": []

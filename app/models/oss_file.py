@@ -22,8 +22,8 @@ class PityOssFile(PityBase):
     __alias__ = dict(file_path="文件路径", view_url="地址", file_size="文件大小")
     __show__ = 1
     __table_args__ = (
-        {'comment': 'OSS文件表', 'mysql_charset': 'utf8mb4'},
         UniqueConstraint('file_path', 'deleted_at'),
+        {'comment': 'OSS文件表', 'mysql_charset': 'utf8mb4'},
     )
 
     def __init__(self, user, file_path, view_url, file_size, id=None):
