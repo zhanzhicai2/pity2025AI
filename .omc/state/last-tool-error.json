@@ -1,7 +1,0 @@
-{
-  "tool_name": "Bash",
-  "tool_input_preview": "{\"command\":\"python -c \\\"from app.models.address import PityGateway; print('OK')\\\" 2>&1\",\"description\":\"Test import address model\"}",
-  "error": "Exit code 1\nTraceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"/Users/zhanzhicai/Desktop/py/pity/backend/app/__init__.py\", line 7, in <module>\n    from fastapi import FastAPI, Request, status\nModuleNotFoundError: No module named 'fastapi'",
-  "timestamp": "2026-04-07T20:12:08.637Z",
-  "retry_count": 2
-}
