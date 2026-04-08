@@ -91,10 +91,10 @@ async def errors_handling(request: Request, call_next):
         return await call_next(request)
     except Exception as exc:
         hint = _get_hint(exc)
-        Log("errors_handling").exception(
-            f"[错误] {exc}\n"
-            f"[修复建议] {hint}\n"
-            f"[请求路径] {request.url.path}"
+        Log("errors_handling").json_exception(
+            error=str(exc),
+            hint=hint,
+            path=request.url.path,
         )
         return JSONResponse(
             status_code=status.HTTP_200_OK,
