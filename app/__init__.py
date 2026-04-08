@@ -3,6 +3,7 @@ import os
 import sys
 import traceback
 from pprint import pformat
+from typing import Optional
 
 from fastapi import FastAPI, Request, status
 from fastapi.encoders import jsonable_encoder
@@ -22,6 +23,33 @@ from config import Config
 sys.path.append(__file__)
 
 # from starlette_context import middleware, plugins
+
+# 异常类型 hint 映射，用于 AI 自动修复
+EXCEPTION_HINTS = {
+    "coroutine was never awaited": "异步调用缺少 await，检查是否在 async def 中调用了协程",
+    "'NoneType' has no attribute": "对象为 None，检查前置赋值或查询结果是否为空",
+    "NoResultFound": "查询结果为空，先用 .scalar_one_or_none() 并判断 None",
+    "NoResultFoundError": "查询结果为空，先用 .scalar_one_or_none() 并判断 None",
+    "MissingDependencyException": "缺少依赖注入，检查 Depends() 配置是否正确",
+    "ValidationError": "请求参数校验失败，检查字段名、类型、必填项",
+    "RequestValidationError": "请求参数校验失败，检查请求体 JSON 格式",
+    "ConnectionRefusedError": "数据库/Redis 连接被拒绝，确认服务已启动",
+    "OperationalError": "数据库操作失败，检查 SQL 语法或连接状态",
+    "AttributeError": "属性/方法不存在，检查对象类型或拼写是否正确",
+    "TypeError": "类型不匹配，检查参数类型或 None 值传播",
+    "pymysql.err": "MySQL 错误，检查 SQL 语法和事务状态",
+    "asyncpg": "PostgreSQL 错误，检查 SQL 语法和连接参数",
+}
+
+
+def _get_hint(exc: Exception) -> str:
+    """根据异常信息匹配 hint"""
+    exc_str = str(exc)
+    for key, hint in EXCEPTION_HINTS.items():
+        if key in exc_str:
+            return hint
+    return "查看上方 traceback 确定错误原因"
+
 
 pity = FastAPI()
 
@@ -59,18 +87,22 @@ async def get_body(request: Request) -> bytes:
 
 @pity.middleware("http")
 async def errors_handling(request: Request, call_next):
-    # body = await request.body()
     try:
-        # await set_body(request, await request.body())
         return await call_next(request)
     except Exception as exc:
-        Log("errors_handling").exception(str(exc))
+        hint = _get_hint(exc)
+        Log("errors_handling").exception(
+            f"[错误] {exc}\n"
+            f"[修复建议] {hint}\n"
+            f"[请求路径] {request.url.path}"
+        )
         return JSONResponse(
             status_code=status.HTTP_200_OK,
             content=jsonable_encoder({
                 "code": 110,
                 "msg": str(exc),
-                # "request_data": body,
+                "suggestion": hint,
+                "path": str(request.url.path),
             })
         )
 
@@ -182,14 +214,14 @@ def format_record(record: dict) -> str:
     # >>>                      {'age': 27, 'is_active': True, 'name': 'Alex'}]}]
     """
 
-    format_string = LOGURU_FORMAT
+    format_string = str(LOGURU_FORMAT)
     if record["extra"].get("payload") is not None:
         record["extra"]["payload"] = pformat(
             record["extra"]["payload"], indent=4, compact=True, width=88
         )
-        format_string += "\n<level>{extra[payload]}</level>"
+        format_string = str(format_string) + "\n<level>{extra[payload]}</level>"
 
-    format_string += "{exception}\n"
+    format_string = str(format_string) + "{exception}\n"
     return format_string
 
 
