@@ -171,20 +171,58 @@ class DbConfigDao(Mapper):
         :param database_child:
         :return:
         """
-        meta = MetaData(bind=conn)
-        meta.reflect()
+        meta = MetaData()
+        meta.reflect(bind=conn)
+        # 获取表注释
+        table_comments = {}
+        try:
+            table_comment_sql = text(f"""
+                SELECT TABLE_NAME, TABLE_COMMENT
+                FROM information_schema.TABLES
+                WHERE TABLE_SCHEMA = :database
+            """)
+            table_result = conn.execute(table_comment_sql, {"database": data.database})
+            for row in table_result:
+                table_comments[row[0]] = row[1] or ""
+        except Exception:
+            pass
+
+        # 获取字段注释
+        column_comments = {}
+        try:
+            column_comment_sql = text(f"""
+                SELECT TABLE_NAME, COLUMN_NAME, COLUMN_COMMENT
+                FROM information_schema.COLUMNS
+                WHERE TABLE_SCHEMA = :database
+            """)
+            column_result = conn.execute(column_comment_sql, {"database": data.database})
+            for row in column_result:
+                key = (row[0], row[1])
+                column_comments[key] = row[2] or ""
+        except Exception:
+            pass
+
         for t in meta.sorted_tables:
-            table_map.add(str(t))
+            table_name = str(t)
+            table_map.add(table_name)
+            table_comment = table_comments.get(table_name, "")
             temp = []
-            database_child.append(dict(title=str(t), key=f"table_{data.id}_{t}", children=temp))
+            database_child.append(dict(
+                title=f"{table_name} ({table_comment})" if table_comment else table_name,
+                key=f"table_{data.id}_{table_name}",
+                children=temp,
+                comment=table_comment,
+            ))
             for k, v in t.c.items():
                 table_map.add(k)
+                col_comment = column_comments.get((table_name, k), "")
                 temp.append(dict(
-                    title=k,
+                    title=f"{k} {col_comment}" if col_comment else k,
                     primary_key=v.primary_key,
-                    type={str(v.type)},
+                    type=str(v.type),
                     isLeaf=True,
-                    key=f"column_{t}_{data.id}_{k}",
+                    key=f"column_{table_name}_{data.id}_{k}",
+                    comment=col_comment,
                 ))
 
     @staticmethod
