@@ -123,6 +123,36 @@ async def delete_session(session_id: int, user_info: dict = Depends(get_current_
         return {"code": 110, "data": None, "msg": f"删除会话失败: {str(e)}"}
 
 
+@router.put("/sessions/{session_id}", summary="更新会话")
+async def update_session(
+    session_id: int,
+    title: str = Query(..., description="会话标题"),
+    user_info: dict = Depends(get_current_user)
+):
+    """更新会话标题"""
+    try:
+        user_id = user_info.get("id")
+        # 标题截取前20字符
+        title = title[:20] + "..." if len(title) > 20 else title
+        session = await ChatSessionDao.update_session(session_id, user_id, title=title)
+        if not session:
+            return {"code": 110, "data": None, "msg": "会话不存在"}
+        return {
+            "code": 0,
+            "data": {
+                "id": session.id,
+                "session_id": session.session_id,
+                "title": session.title,
+                "model": session.model,
+                "created_at": session.created_at
+            },
+            "msg": "更新成功"
+        }
+    except Exception as e:
+        logger.error(f"更新会话失败: {e}")
+        return {"code": 110, "data": None, "msg": f"更新会话失败: {str(e)}"}
+
+
 @router.get("/messages/{session_id}", summary="获取消息列表")
 async def get_messages(
     session_id: int,
@@ -209,7 +239,13 @@ async def send_message(
         if rag_context:
             history.insert(0, {
                 "role": "system",
-                "content": f"你是一个专业的AI助手。请基于以下知识库内容回答用户的问题。\n\n知识库内容：\n{rag_context}\n\n如果知识库中有相关信息，请结合知识库回答。如果没有相关信息，请说明并基于你的知识回答。"
+                "content": f"你是一个专业的AI助手。请基于以下知识库内容回答用户的问题。\n\n知识库内容：\n{rag_context}\n\n请使用 GitHub Flavored Markdown 格式输出，支持：\n- 表格（用于对比数据）\n- 代码块（标明语言，如 json、python、bash）\n- 流程图（使用 mermaid 语法）\n- 任务列表、删除线等\n\n如果知识库中有相关信息，请结合知识库回答。如果没有相关信息，请说明并基于你的知识回答。"
+            })
+        else:
+            # 无 RAG 时也插入 Markdown 格式要求
+            history.insert(0, {
+                "role": "system",
+                "content": "你是一个专业的AI助手。请使用 GitHub Flavored Markdown 格式输出，支持：\n- 表格（用于对比数据）\n- 代码块（标明语言，如 json、python、bash）\n- 流程图（使用 mermaid 语法）\n- 任务列表、删除线等"
             })
 
         # 调用 AI 服务
@@ -286,7 +322,9 @@ async def send_message_stream(
 
             # 获取历史消息构建上下文
             messages, _ = await ChatMessageDao.get_messages(session_id, 0, 100)
-            history = [{"role": m.role, "content": m.content} for m in messages[:-1]]
+            # 构建历史消息（包含所有消息，包括刚添加的用户消息）
+            # 注意：AI API 至少需要一条消息
+            history = [{"role": m.role, "content": m.content} for m in messages]
 
             # 调用 AI 流式服务
             model_to_use = form.model or session.model
@@ -304,8 +342,12 @@ async def send_message_stream(
                 content=full_content
             )
 
-            # 更新会话时间
-            await ChatSessionDao.update_session(session_id, user_id)
+            # 如果会话标题是默认的"新对话"，更新为用户提问的前20字
+            if session.title == "新对话" or session.title is None:
+                title = form.content[:20] + "..." if len(form.content) > 20 else form.content
+                await ChatSessionDao.update_session(session_id, user_id, title=title)
+            else:
+                await ChatSessionDao.update_session(session_id, user_id)
 
             yield f"data: {json.dumps({'type': 'done', 'message_id': assistant_msg.id}, ensure_ascii=False)}\n\n"
 
