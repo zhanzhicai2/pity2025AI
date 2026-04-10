@@ -3,7 +3,7 @@ LLM 配置 DAO 层
 """
 from typing import Optional, List
 
-from sqlalchemy import select, update
+from sqlalchemy import select, update, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.crud import Mapper, ModelWrapper
@@ -19,7 +19,8 @@ class LLMConfigDao(Mapper):
     async def list_configs(
         cls,
         provider: Optional[str] = None,
-        is_active: Optional[bool] = None
+        is_active: Optional[bool] = None,
+        name: Optional[str] = None
     ) -> List[LLMConfig]:
         """获取配置列表"""
         async with async_session() as session:
@@ -30,6 +31,16 @@ class LLMConfigDao(Mapper):
 
             if is_active is not None:
                 query = query.where(LLMConfig.is_active == is_active)
+
+            if name:
+                name_pattern = f"%{name}%"
+                query = query.where(
+                    or_(
+                        LLMConfig.config_name.ilike(name_pattern),
+                        LLMConfig.name.ilike(name_pattern),
+                        LLMConfig.model_name.ilike(name_pattern),
+                    )
+                )
 
             query = query.order_by(LLMConfig.is_default.desc(), LLMConfig.id.desc())
 

@@ -39,6 +39,7 @@ aioetcd3
 grpcio
 celery==5.3.6
 flower==2.0.1
+psutil>=5.9.0
 
 # RAG 相关
 chromadb>=1.0.0

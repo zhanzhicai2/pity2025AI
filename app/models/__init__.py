@@ -120,3 +120,16 @@ from app.models.llm_config import LLMConfig
 
 # 导入 requirement_document 相关模型（用于自动建表）
 from app.models.requirement_document import RequirementDocument
+
+# 导入动态模板系统相关模型（用于自动建表）
+from app.models.testcase_template import PityTestcaseTemplate
+from app.models.case_v2 import PityCaseV2
+from app.models.case_field import PityTestcaseField
+from app.models.case_execution import PityCaseExecution
+from app.models.ai_generation_task import PityAIGenerationTask
+
+# 导入场景流程相关模型（用于自动建表）
+from app.models.scenario import PityScenario, PityScenarioStep
+
+# 导入 Phase X 相关模型（用于自动建表）
+from app.models.phasex import PityPhaseXPlan, PityPhaseXExecution, PityPhaseXReport

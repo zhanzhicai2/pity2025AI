@@ -153,7 +153,10 @@ class OpenAIService(AIService):
         try:
             async with httpx.AsyncClient(timeout=120.0) as client:
                 async with client.stream("POST", url, headers=headers, json=payload) as response:
-                    response.raise_for_status()
+                    if response.status_code != 200:
+                        error_text = await response.aread()
+                        logger.bind(name=Config.PITY_ERROR).error(f"AI API HTTP 错误 [{response.status_code}]: {error_text}")
+                        raise Exception(f"AI API 请求失败 [{response.status_code}]")
                     async for line in response.aiter_lines():
                         if line.startswith("data: "):
                             data = line[6:]

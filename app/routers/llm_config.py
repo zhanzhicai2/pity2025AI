@@ -33,11 +33,12 @@ def get_current_user(user_info=Depends(Permission())):
 async def list_configs(
     provider: Optional[str] = Query(None, description="提供商筛选"),
     is_active: Optional[bool] = Query(None, description="启用状态筛选"),
+    name: Optional[str] = Query(None, description="名称筛选"),
     user_info: dict = Depends(get_current_user),
 ):
     """获取 LLM 配置列表"""
-    configs = await LLMConfigDao.list_configs(provider=provider, is_active=is_active)
-    return PityResponse.success_with_size(configs)
+    configs = await LLMConfigDao.list_configs(provider=provider, is_active=is_active, name=name)
+    return PityResponse.success_with_size(configs, total=len(configs))
 
 
 @router.get("/default")
