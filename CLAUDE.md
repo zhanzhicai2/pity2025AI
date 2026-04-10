@@ -237,7 +237,27 @@ Celery 与 APScheduler 互补：APScheduler 处理**定时/周期**任务（cron
 
 使用 Loguru，通过 `logger.bind(name=Config.PITY_INFO)` / `Config.PITY_ERROR` 分流：
 - `logs/pity_info.log` — DEBUG 及以上
-- `logs/pity_error.log` — WARNING 及以上
+- `logs/pity_error.log` — WARNING 及以上（**未来将统一使用 JSON 格式**）
+
+### JSON 格式错误日志
+
+`Log` 类提供 `json_exception()` 方法，输出统一 JSON 格式错误日志到 `logs/pity_error_json.log`：
+```json
+{
+    "time": "2026-04-08 17:02:00.720",
+    "level": "ERROR",
+    "module": "errors_handling",
+    "file": "app/__init__.py",
+    "function": "errors_handling",
+    "line": 94,
+    "error": "Cannot read properties of undefined",
+    "hint": "对象为 None，检查前置赋值或查询结果是否为空",
+    "traceback": "Traceback (most recent call last):\n  ...",
+    "path": "/api/endpoint"
+}
+```
+
+**后续统一使用 JSON 格式**：所有错误日志都将通过 `json_exception()` 记录到 `pity_error_json.log`。
 
 ## 数据库迁移
 
