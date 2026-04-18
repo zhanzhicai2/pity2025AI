@@ -1,7 +1,8 @@
 """KnowledgeLib DAO"""
+from datetime import datetime
 from typing import List, Tuple
 
-from sqlalchemy import select, func
+from sqlalchemy import select, func, update
 
 from app.crud import Mapper, ModelWrapper, connect
 from app.models.knowledge_lib import KnowledgeLib
@@ -36,7 +37,7 @@ class KnowledgeLibDao(Mapper):
         chunk_size=None, overlap=None, session=None
     ):
         """更新知识库"""
-        kwargs = {}
+        kwargs = {"updated_at": datetime.now()}
         if name is not None:
             kwargs["name"] = name
         if description is not None:
@@ -45,7 +46,8 @@ class KnowledgeLibDao(Mapper):
             kwargs["chunk_size"] = chunk_size
         if overlap is not None:
             kwargs["overlap"] = overlap
-        await cls.update_by_id(lib_id, session=session, **kwargs)
+        stmt = update(KnowledgeLib).where(KnowledgeLib.id == lib_id).values(**kwargs)
+        await session.execute(stmt)
 
     @classmethod
     @connect
@@ -62,7 +64,9 @@ class KnowledgeLibDao(Mapper):
     @connect
     async def get_knowledge_lib(cls, lib_id, session=None):
         """获取单个知识库"""
-        return await Mapper.query_record(cls, id=lib_id)
+        stmt = select(KnowledgeLib).where(KnowledgeLib.id == lib_id)
+        result = await session.execute(stmt)
+        return result.scalar_one_or_none()
 
     @classmethod
     @connect
@@ -76,10 +80,10 @@ class KnowledgeLibDao(Mapper):
     @connect
     async def update_document_count(cls, lib_id, session=None):
         """更新文档数量统计"""
-        stmt = select(func.count()).where(
-            KnowledgeBase.lib_id == lib_id,
-            KnowledgeBase.deleted_at == 0
-        )
+        stmt = select(func.count()).where(KnowledgeBase.lib_id == lib_id)
         result = await session.execute(stmt)
         count = result.scalar()
-        await cls.update_by_id(lib_id, session=session, document_count=count)
+        update_stmt = update(KnowledgeLib).where(KnowledgeLib.id == lib_id).values(
+            document_count=count, updated_at=datetime.now()
+        )
+        await session.execute(update_stmt)
