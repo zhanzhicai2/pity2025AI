@@ -13,7 +13,7 @@ class KnowledgeBaseDao(Mapper):
     @connect
     async def insert_knowledge(
         cls, name, file_type, file_path, file_size, content_hash,
-        status, chunk_count, doc_metadata=None, user_id=None, session=None
+        status, chunk_count, doc_metadata=None, user_id=None, lib_id=None, session=None
     ):
         """插入知识库文档记录"""
         model = KnowledgeBase()
@@ -26,6 +26,7 @@ class KnowledgeBaseDao(Mapper):
         model.status = status
         model.chunk_count = chunk_count
         model.create_user = user_id
+        model.lib_id = lib_id
         return await cls.insert(model=model, session=session)
 
     @classmethod
@@ -41,11 +42,13 @@ class KnowledgeBaseDao(Mapper):
 
     @classmethod
     @connect
-    async def list_knowledge(cls, page=1, size=20, name=None, status=None, session=None):
+    async def list_knowledge(cls, page=1, size=20, name=None, status=None, lib_id=None, session=None):
         """分页查询知识库文档"""
         kwargs = {}
         if name:
             kwargs["name"] = name
         if status:
             kwargs["status"] = status
+        if lib_id is not None:
+            kwargs["lib_id"] = lib_id
         return await cls.list_with_pagination(page, size, session=session, **kwargs)

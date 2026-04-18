@@ -37,6 +37,7 @@ def get_current_user(user_info=Depends(Permission())):
 async def upload_document(
     file: UploadFile = File(...),
     name: str = Form(...),
+    lib_id: int = Form(None),
     user_info: dict = Depends(get_current_user),
 ):
     """上传文档到知识库"""
@@ -96,6 +97,7 @@ async def upload_document(
             chunk_count=chunk_count,
             doc_metadata={"original_filename": file.filename},
             user_id=user_id,
+            lib_id=lib_id,
         )
     except Exception as e:
         # 回滚向量库
@@ -105,6 +107,14 @@ async def upload_document(
             pass
         os.remove(file_path)
         return PityResponse.failed(f"数据库记录失败: {e}")
+
+    # 更新知识库文档计数
+    if lib_id:
+        try:
+            from app.crud.knowledge_lib.KnowledgeLibDao import KnowledgeLibDao
+            await KnowledgeLibDao.update_document_count(lib_id)
+        except Exception:
+            pass
 
     return PityResponse.success({"chunk_count": chunk_count}, msg="文档上传成功")
 
@@ -188,12 +198,13 @@ async def list_documents(
     size: int = 20,
     name: Optional[str] = None,
     status: Optional[str] = None,
+    lib_id: Optional[int] = None,
     user_info: dict = Depends(get_current_user),
 ):
     """列出知识库文档"""
     try:
         data, total = await KnowledgeBaseDao.list_knowledge(
-            page=page, size=size, name=name, status=status
+            page=page, size=size, name=name, status=status, lib_id=lib_id
         )
         return PityResponse.success(
             {"list": [KnowledgeBaseResponse.model_validate(d) for d in data], "total": total}
