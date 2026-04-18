@@ -11,6 +11,7 @@ class KnowledgeBase(Base):
     __table_args__ = {'comment': '知识库文档表', 'mysql_charset': 'utf8mb4'}
 
     id = Column(Integer, primary_key=True, autoincrement=True)
+    lib_id = Column(Integer, nullable=True, comment="所属知识库ID")
     name = Column(String(255), nullable=False, comment="文档名称")
     file_type = Column(String(50), nullable=False, comment="文件类型: pdf, docx, md, txt")
     file_path = Column(String(500), nullable=False, comment="文件存储路径")
