@@ -5,11 +5,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## 项目结构确认
 
 确认我现在工作的目录：
-- Pity 前端：/Users/zhanzhicai/Desktop/py/pity/frontend
+- Pity 前端：/Users/zhanzhicai/Desktop/py/pity/pityweb2025Ai
 - Pity 后端：/Users/zhanzhicai/Desktop/py/pity/backend
 -
 ## Git 状态
-前端 │ /Users/zhanzhicai/Desktop/py/pity/frontend │ feat/upgrade-plugin-system
+前端 │ /Users/zhanzhicai/Desktop/py/pity/pityweb2025Ai │ dev
 后端 │ /Users/zhanzhicai/Desktop/py/pity/backend  │ feat/upgrade-plugin-system
 分开提交：backend 和 frontend 单独 commit，只提交不推送
 
@@ -262,6 +262,59 @@ Celery 与 APScheduler 互补：APScheduler 处理**定时/周期**任务（cron
 ## 数据库迁移
 
 项目配置了 Alembic（`alembic.ini` + `alembic/`），但启动时也会通过 `Base.metadata.create_all` 自动建表。Model 的 `__fields__`、`__tag__`、`__alias__`、`__show__` 类属性控制操作日志的展示字段和关联关系。
+
+## 分层架构约束
+
+后端使用 `import-linter` 强制分层依赖方向，禁止跨层 import。
+
+### 分层顺序（从高到低）
+
+```
+routers > services > tasks > core > crud > models > utils
+```
+
+| 层级 | 包 | 说明 |
+|------|-----|------|
+| 7 | `app.routers` | API 路由层 |
+| 6 | `app.services` | 业务服务层 |
+| 5 | `app.tasks` | Celery 异步任务 |
+| 4 | `app.core` | 核心执行引擎 |
+| 3 | `app.crud` | 数据访问层 |
+| 2 | `app.models` | 数据模型层 |
+| 1 | `app.utils` | 工具函数层 |
+
+### 运行检查
+
+```bash
+import-linter lint
+```
+
+### 已忽略的合理跨层依赖
+
+以下 4 条 import 因技术原因忽略：
+
+| 违规 import | 原因 |
+|------------|------|
+| `app.utils.scheduler → app.core.executor` | 调度器需要调用执行器 |
+| `app.utils.suite_executor → app.core.executor` | 测试套件执行器依赖核心执行器 |
+| `app.core.ai.context_compressor → app.services.cache_service` | AI 上下文压缩依赖缓存服务 |
+| `app.core.ai.graph.nodes → app.services.rag_service` | AI 图节点依赖 RAG 服务 |
+
+### 配置位置
+
+`pyproject.toml` 中的 `[tool.importlinter]` 配置段。
+
+## 开发阶段
+
+- [x] Phase 1: 依赖升级（Pydantic v1→v2, SQLAlchemy 1.4→2.0, FastAPI 0.75→0.111）
+- [x] Phase 2: 任务调度系统（APScheduler + MySQL 持久化）
+- [x] Phase 3: 测试套件管理系统（套件 CRUD + 执行）
+- [x] Phase 4: AI 测试用例生成（MiniMax/DeepSeek/智谱）
+- [x] Phase 5: Celery 异步任务（AI 生成用例异步化）
+- [ ] Phase 6-10: 待规划
+- [ ] Phase 11: 前端集成 AI（进行中）
+
+---
 
 ## 关键约定
 
