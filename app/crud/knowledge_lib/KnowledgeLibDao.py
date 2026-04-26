@@ -20,13 +20,12 @@ class KnowledgeLibDao(Mapper):
         chunk_size=500, overlap=50, user_id=None, session=None
     ):
         """创建知识库"""
-        model = KnowledgeLib()
+        model = KnowledgeLib(user_id)
         model.name = name
         model.project_id = project_id
         model.description = description
         model.chunk_size = chunk_size
         model.overlap = overlap
-        model.create_user = user_id
         model.document_count = 0
         return await cls.insert(model=model, session=session)
 
@@ -58,29 +57,27 @@ class KnowledgeLibDao(Mapper):
         kwargs = {}
         if project_id is not None:
             kwargs["project_id"] = project_id
-        return await cls.list_with_pagination(1, 1000, session=session, **kwargs)
+        return await cls.list_with_pagination(1, 1000, session=session, deleted_at=0, **kwargs)
 
     @classmethod
     @connect
     async def get_knowledge_lib(cls, lib_id, session=None):
         """获取单个知识库"""
-        stmt = select(KnowledgeLib).where(KnowledgeLib.id == lib_id)
+        stmt = select(KnowledgeLib).where(KnowledgeLib.id == lib_id, KnowledgeLib.deleted_at == 0)
         result = await session.execute(stmt)
         return result.scalar_one_or_none()
 
     @classmethod
     @connect
     async def delete_knowledge_lib(cls, lib_id, user_id=None, session=None):
-        """删除知识库"""
-        await Mapper.delete_record_by_id(
-            cls, session=session, user=user_id, value=lib_id
-        )
+        """软删除知识库"""
+        await cls.delete_record_by_id(session=session, user=user_id, value=lib_id)
 
     @classmethod
     @connect
     async def update_document_count(cls, lib_id, session=None):
         """更新文档数量统计"""
-        stmt = select(func.count()).where(KnowledgeBase.lib_id == lib_id)
+        stmt = select(func.count()).where(KnowledgeBase.lib_id == lib_id, KnowledgeBase.deleted_at == 0)
         result = await session.execute(stmt)
         count = result.scalar()
         update_stmt = update(KnowledgeLib).where(KnowledgeLib.id == lib_id).values(

@@ -86,7 +86,8 @@ def connect(transaction: Transaction = False):
                     if transaction and not nb:
                         async with session.begin():
                             return await func(cls, *args, session=session, **kwargs)
-                    return await func(cls, *args[1:], session=session, **kwargs)
+                    # session 已通过 kwargs 传入，需从 args 中剔除原位置参数（args[0]=cls, args[1]=原session）
+                    return await func(cls, *args[2:], session=session, **kwargs)
                 async with async_session() as ss:
                     if transaction and not nb:
                         async with ss.begin():
@@ -268,7 +269,7 @@ class Mapper(object):
         :return:
         """
         conditions = condition if condition else list()
-        if getattr(cls.__model__, "deleted_at", None):
+        if hasattr(cls.__model__, "deleted_at"):
             conditions.append(getattr(cls.__model__, "deleted_at") == 0)
         _sort = kwargs.pop("_sort", None)
         _select = kwargs.pop("_select", list())
@@ -395,7 +396,8 @@ class Mapper(object):
 
     @classmethod
     @RedisHelper.up_cache("dao")
-    async def delete_record_by_id(cls, session, user: int, value: int, log=True, key='id', exists=True,
+    @connect
+    async def delete_record_by_id(cls, session: AsyncSession = None, user: int = None, value: int = None, log=True, key='id', exists=True,
                                   session_begin=False):
         """
         逻辑删除
@@ -416,6 +418,7 @@ class Mapper(object):
                 return await cls._inner_delete(session, user, value, log, key, exists)
         except Exception as e:
             cls.__log__.exception(f"删除{cls.__model__.__name__}记录失败: \n{e}")
+            raise
             raise Exception(f"删除失败")
 
     @classmethod
@@ -474,7 +477,7 @@ class Mapper(object):
         fields_number = getattr(now, Config.SHOW_FIELD, 1)
         if fields:
             # 必须要展示至少1个字段
-            fields = [f.name for f in fields[:fields_number]]
+            fields = [f.name for f in fields[:fields_number] if f.name]
         else:
             fields = ['id']
         if not changed:
@@ -484,6 +487,8 @@ class Mapper(object):
                 changed_fields = []
         else:
             changed_fields = changed
+        # 过滤掉 name 为 None 或非 string 类型的字段
+        changed_fields = [c for c in changed_fields if isinstance(c, str) and c]
         detail_fields = [c for c in changed_fields if
                          c not in fields] if mode != OperationType.UPDATE else changed_fields
         result = []

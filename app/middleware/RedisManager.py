@@ -323,10 +323,32 @@ class RedisHelper(object):
                     new_data = await func(*args, **kwargs)
                     if not Config.REDIS_ON:
                         return new_data
-                    cls_name = inspect.getframeinfo(inspect.currentframe().f_back)[3][0].split(".")[0].split(" ")[-1]
+                    # 新方案：通过 inspect 获取实际绑定到类方法的对象，
+                    # 从 self.__class__ 获取真实的 DAO 类名（如 KnowledgeBaseDao）
+                    # 而不是通过调用栈推断（可能拿到父类 Mapper）
+                    try:
+                        frame = inspect.currentframe()
+                        # 向上找绑定方法的帧（__call__ -> wrapper -> 删除方法调用）
+                        for _ in range(5):
+                            frame = frame.f_back
+                            local_self = frame.f_locals.get('self')
+                            if local_self is not None:
+                                cls_name = local_self.__class__.__name__
+                                break
+                        else:
+                            cls_name = 'Mapper'
+                        del frame
+                    except Exception:
+                        cls_name = 'Mapper'
                     for k in key:
-                        redis_key = f"{RedisHelper.pity_prefix}:{cls_name}:{k}"
-                        await RedisHelper.async_delete_prefix(redis_key)
+                        # 优先使用 'cls' 作为通用前缀（与 @cache 装饰器的 key 格式保持一致），
+                        # 因为 @cache 用调用栈推断的类名存储（如 'cls'），删除时也要用相同前缀才能匹配
+                        delete_key = f"{RedisHelper.pity_prefix}:cls:{k}"
+                        await RedisHelper.async_delete_prefix(delete_key)
+                        # 同时尝试删除用真实类名的缓存（兜底）
+                        delete_key2 = f"{RedisHelper.pity_prefix}:{cls_name}:{k}"
+                        if delete_key2 != delete_key:
+                            await RedisHelper.async_delete_prefix(delete_key2)
                     if key_and_suffix is not None:
                         current_key = RedisHelper.get_key_with_suffix(cls_name, key_and_suffix[0], args,
                                                                       key_and_suffix[1])
@@ -341,10 +363,25 @@ class RedisHelper(object):
                     new_data = func(*args, **kwargs)
                     if not Config.REDIS_ON:
                         return new_data
-                    cls_name = inspect.getframeinfo(inspect.currentframe().f_back)[3][0].split(".")[0].split(" ")[-1]
+                    try:
+                        frame = inspect.currentframe()
+                        for _ in range(5):
+                            frame = frame.f_back
+                            local_self = frame.f_locals.get('self')
+                            if local_self is not None:
+                                cls_name = local_self.__class__.__name__
+                                break
+                        else:
+                            cls_name = 'Mapper'
+                        del frame
+                    except Exception:
+                        cls_name = 'Mapper'
                     for k in key:
-                        redis_key = f"{RedisHelper.pity_prefix}:{cls_name}:{k}"
-                        RedisHelper.delete_prefix(redis_key)
+                        delete_key = f"{RedisHelper.pity_prefix}:cls:{k}"
+                        RedisHelper.delete_prefix(delete_key)
+                        delete_key2 = f"{RedisHelper.pity_prefix}:{cls_name}:{k}"
+                        if delete_key2 != delete_key:
+                            RedisHelper.delete_prefix(delete_key2)
                     if key_and_suffix is not None:
                         current_key = RedisHelper.get_key_with_suffix(cls_name, key_and_suffix[0], args,
                                                                       key_and_suffix[1])

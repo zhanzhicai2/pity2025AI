@@ -222,7 +222,7 @@ async def get_document(
     try:
         from app.crud import Mapper
 
-        record = await Mapper.query_record(KnowledgeBaseDao, id=doc_id)
+        record = await KnowledgeBaseDao.query_record(id=doc_id)
         if record is None:
             return PityResponse.failed("文档不存在")
         return PityResponse.success(KnowledgeBaseResponse.model_validate(record))
@@ -240,7 +240,7 @@ async def delete_document(
     try:
         from app.crud import Mapper
 
-        record = await Mapper.query_record(KnowledgeBaseDao, id=doc_id)
+        record = await KnowledgeBaseDao.query_record(id=doc_id)
         if record is None:
             return PityResponse.failed("文档不存在")
 
@@ -267,7 +267,7 @@ async def delete_document(
             pass
 
         # 软删除数据库记录
-        await Mapper.delete_record_by_id(KnowledgeBaseDao, session=None, user=user_id, value=doc_id)
+        await KnowledgeBaseDao.delete_record_by_id(session=None, user=user_id, value=doc_id)
         return PityResponse.success(msg="删除成功")
     except Exception as e:
         return PityResponse.failed(f"删除失败: {e}")

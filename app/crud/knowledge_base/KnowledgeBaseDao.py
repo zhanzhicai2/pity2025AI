@@ -16,7 +16,7 @@ class KnowledgeBaseDao(Mapper):
         status, chunk_count, doc_metadata=None, user_id=None, lib_id=None, session=None
     ):
         """插入知识库文档记录"""
-        model = KnowledgeBase()
+        model = KnowledgeBase(user_id)
         model.name = name
         model.file_type = file_type
         model.file_path = file_path
@@ -42,6 +42,12 @@ class KnowledgeBaseDao(Mapper):
 
     @classmethod
     @connect
+    async def delete_knowledge(cls, id, user_id=None, session=None):
+        """软删除知识库文档"""
+        await cls.delete_record_by_id(session=session, user=user_id, value=id)
+
+    @classmethod
+    @connect
     async def list_knowledge(cls, page=1, size=20, name=None, status=None, lib_id=None, session=None):
         """分页查询知识库文档"""
         kwargs = {}
@@ -51,4 +57,4 @@ class KnowledgeBaseDao(Mapper):
             kwargs["status"] = status
         if lib_id is not None:
             kwargs["lib_id"] = lib_id
-        return await cls.list_with_pagination(page, size, session=session, **kwargs)
+        return await cls.list_with_pagination(page, size, session=session, deleted_at=0, **kwargs)
