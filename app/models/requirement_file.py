@@ -8,7 +8,7 @@ from app.models.basic import PityBase
 
 class RequirementFile(PityBase):
     """需求文件模型 - 关联到需求文档下的具体上传文件"""
-    __tablename__ = "sys_requirement_file"
+    __tablename__ = "pity_requirement_file"
     __table_args__ = {'comment': '需求文件表', 'mysql_charset': 'utf8mb4'}
     __fields__ = (PityBase.id,)
     __tag__ = "需求文件"

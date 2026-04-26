@@ -8,7 +8,7 @@ from app.models.basic import PityBase
 
 class LLMConfig(PityBase):
     """LLM 配置模型"""
-    __tablename__ = "sys_llm_config"
+    __tablename__ = "pity_llm_config"
     __table_args__ = {'comment': 'LLM 配置表', 'mysql_charset': 'utf8mb4'}
     __fields__ = (id,)
     __tag__ = "LLM配置"

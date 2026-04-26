@@ -8,7 +8,7 @@ from app.models.basic import PityBase
 
 class RequirementDocument(PityBase):
     """需求文档模型"""
-    __tablename__ = "sys_requirement_document"
+    __tablename__ = "pity_requirement_document"
     __table_args__ = {'comment': '需求文档表', 'mysql_charset': 'utf8mb4'}
     __fields__ = (id,)
     __tag__ = "需求文档"
