@@ -202,7 +202,10 @@ Celery 与 APScheduler 互补：APScheduler 处理**定时/周期**任务（cron
 
 ## 新增 API 标准流程
 
-1. **Model** — `app/models/` 创建模型类，直接继承 `Base` 并设置 `__tablename__`
+1. **Model** — `app/models/` 创建模型类
+   - 设置 `__tablename__`，**表名必须以 `pity_` 为前缀**，如 `__tablename__ = "pity_broadcast_read_user"`
+   - 硬删除：继承 `Base`
+   - 软删除：继承 `PityBase`（提供 `id, created_at, updated_at, deleted_at, create_user, update_user` 字段）
 2. **DAO** — `app/crud/` 下对应子目录创建 DAO 类，用 `@ModelWrapper(YourModel)` 装饰，继承 `Mapper`
 3. **Schema** — `app/schema/` 创建 Pydantic v2 验证模型
 4. **Router** — `app/routers/` 创建路由，用 `APIRouter` 定义端点
@@ -388,6 +391,26 @@ import-linter lint
 ### 代码注释原则
 
 注释掉的代码（`{/* ... */}` 或 `// ...`）必须保留，不删除。
+
+### 函数/方法注释规范
+
+所有函数和方法需要提供 docstring 说明参数和返回值：
+
+```python
+def query_database(name, database, env):
+    """
+    通过name, database, env获取数据库配置列表
+    :param name: 数据库名称
+    :param database: 数据库名
+    :param env: 环境
+    :return:
+    """
+```
+
+**强制要求**：
+- 所有公开方法必须包含 docstring
+- `:param xxx:` 说明每个参数的类型和用途
+- `:return:` 或 `:returns:` 说明返回值
 
 ## Phase 开发流程
 
