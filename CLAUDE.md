@@ -318,17 +318,72 @@ import-linter lint
 
 ## 关键约定
 
-- 不要修改 2025-10-12 之前编写的代码，优先创建新文件
+- 不要修改 2025-10-12 之前编写的代码，优先创建新文件，修改旧代码必须使用单行注释和多行注释旧代码，这样保留旧代码便于查询差异
 - DAO 文件命名 `XxxDao.py`，放在 `app/crud/` 对应子目录下
+- **DAO 层 session 管理**：使用 `@connect` 装饰器风格，方法接收 `session` 参数而非自己创建 `async with async_session()`
 - 前端 `localStorage` 中 JWT token 的 key 为 `pityToken`
 - 所有 HTTP 响应 code 都在 200，业务错误通过 body 的 `code` 字段区分
+
+## 技术债
+
+- [ ] 23个DAO文件使用旧的 `async with async_session()` 风格，需逐步迁移到 `@connect` 风格
+  - 问题：与 Mapper 父类方法混用时可能导致 session 冲突
+  - 影响：llm_config, webhook, chat, data_pool, test_case, config, project, operation, notification, auth 等模块
 - `app/crud/__init__.py` 启动时通过 `importlib` 动态导入所有 DAO 模块
 - 模型继承：抽象类用 `PityBase`，需要建表的模型直接继承 `Base`
 - 启动方式：`python pity.py`（生产）或 `uvicorn main:pity --reload`（开发）
 
+## 工作方式
+
+### 模式选择
+
+| 模式 | 命令 | 说明 |
+|------|------|------|
+| **严格模式** | "pity 后端：" + 任务 | 触发 pity-backend-patterns，按规范执行 |
+| **直接模式** | "直接模式" + 任务 | 不触发技能，自由发挥 |
+
+### 严格模式
+
+```
+"pity 后端：帮我创建用户 DAO"
+"Pity backend：用 TDD 写测试"
+"pity FastAPI 开发新 API"
+```
+
+严格模式下**必须包含 "pity" 关键字**才会触发 `pity-backend-patterns`：
+- Pydantic v2 语法（`ConfigDict`、`field_validator`、`model_dump()`）
+- SQLAlchemy 2.0 语法（`select()` 风格）
+- @ModelWrapper + @connect DAO 模式
+
+### 直接模式
+
+```
+"直接模式：帮我看看这个函数"
+"直接模式：快速修复这个 bug"
+```
+
+不触发技能，快速响应。
+
+> ⚠️ **触发条件**：必须说 "pity 后端"、"Pity backend"、"pity FastAPI" 等包含 "pity" 关键字才会激活专属技能
+
 ### 问题解决原则
 
 发现问题后，先解释清楚**原因**，再给出**解决方案**，让用户理解问题所在。
+
+### 常见问题排查
+
+| 问题 | 原因 | 解决方案 |
+|------|------|----------|
+| 前端报 `缺少参数: token` | UmiJS 代理路径错误，或 `pityToken` 未存入 localStorage | 检查 `config/proxy.ts` 是否包含对应前缀，确认用户已登录 |
+| 前端文件上传报 `缺少参数: requirement_id` | `auth.headers()` 默认加 `Content-Type: application/json`，FastAPI 无法解析 multipart/form-data | 前端改用 `auth.headers(false)` 跳过 JSON content-type；后端接口本身正常 |
+| `query_record() got multiple values for argument 'session'` | DAO 混用 `@connect` 装饰器与内部 `async with async_session()` 创建，导致 session 冲突 | 统一使用 `@connect` 风格，整个方法不要自行创建 session |
+| `query_record(XxxDao, id=...)` 调用方式错误 | 通过 `Mapper.query_record(XxxDao, id=...)` 传递 DAO 类作为首个参数，但 `@connect` 会自动注入 session，导致冲突 | 改为 `XxxDao.query_record(id=...)` 直接调用 |
+| `delete_record_by_id() missing 1 required positional argument: 'session'` | `delete_record_by_id` 方法缺少 `@connect` 装饰器，无法自动注入 session | 给 `delete_record_by_id` 加上 `@connect` 装饰器 |
+| `Xxx() got multiple values for argument 'session'` | `@connect` 处理了 kwargs 中的 session 但没从 args 中剔除，导致原位置参数 session 被重复传入 | 修复 `@connect` wrapper：`session` 来自 kwargs 时用 `*args[2:]`（而非 `*args[1:]`），因为 `args[0]=cls, args[1]=原session` |
+| DAO 方法 `session` 无默认值但用 `@connect` | 方法签名 `async def xxx(cls, session, ...)` 与 `@connect` 注入的 session 位置冲突 | 所有 DAO 方法的 `session` 参数必须加 `= None` 默认值 |
+| 软删除后列表仍显示已删除记录 | `@cache` 存储的 key 前缀为 `pity:cls:dao:*`，`@up_cache` 删除时用 `pity:{真实类名}:dao*`，两者不匹配导致缓存未清除 | `up_cache` 装饰器同时删除 `pity:cls:dao*` 和 `pity:{类名}:dao*` 两类缓存 |
+| `getattr(): attribute name must be string` | `PityBase` 的 `__fields__` 定义为 `(id, ...)`，id 为 Column 对象无 name；迭代时传递给 `getattr(now, name, None)` 的 name 为 Column 对象 | `get_diff` 中过滤 `name` 为 None 或非 string 类型的字段 |
+| `TypeError: Boolean value of this clause is not defined` | `query_wrapper` 中 `if getattr(cls.__model__, "deleted_at", None)` 判断，当 `deleted_at` 是 SQLAlchemy Column 对象时直接用在 if 中触发错误 | 改为 `if hasattr(cls.__model__, "deleted_at")` |
 
 ### 代码注释原则
 

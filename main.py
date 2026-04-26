@@ -36,6 +36,7 @@ from app.routers.chat import router as chat_router
 from app.routers.webhook import router as webhook_router
 from app.routers.llm_config import router as llm_config_router
 from app.routers.requirement_document import router as requirement_document_router
+from app.routers.requirement_file import router as requirement_file_router
 from app.routers.openapi import router as openapi_router
 from app.routers.mock import router as mock_router
 from app.routers.case_v2 import case_template_router, scenario_router
@@ -133,6 +134,7 @@ pity.include_router(chat_router, dependencies=[Depends(request_info)])
 pity.include_router(webhook_router, dependencies=[Depends(request_info)])
 pity.include_router(llm_config_router, dependencies=[Depends(request_info)])
 pity.include_router(requirement_document_router, dependencies=[Depends(request_info)])
+pity.include_router(requirement_file_router, dependencies=[Depends(request_info)])
 pity.include_router(openapi_router, dependencies=[Depends(request_info)])
 pity.include_router(mock_router, dependencies=[Depends(request_info)])
 pity.include_router(case_template_router, dependencies=[Depends(request_info)])

@@ -13,4 +13,4 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 if __name__ == "__main__":
     # uvicorn.run(pity, host="0.0.0.0", port=Config.SERVER_PORT, reload=False)
-    uvicorn.run("main:pity", host=Config.SERVER_HOST, port=Config.SERVER_PORT, reload=False, forwarded_allow_ips="*")
+    uvicorn.run("main:pity", host=Config.SERVER_HOST, port=Config.SERVER_PORT, reload=True, forwarded_allow_ips="*")
