@@ -369,6 +369,18 @@ import-linter lint
 
 > ⚠️ **触发条件**：必须说 "pity 后端"、"Pity backend"、"pity FastAPI" 等包含 "pity" 关键字才会激活专属技能
 
+### AI 开发工作流
+
+本项目使用 **Superpowers + gstack** 双技能套件组合工作流，详细说明见父项目 `../CLAUDE.md`：
+- `Superpowers:brainstorming` — 构思
+- `Superpowers:writing-plans` — 写计划
+- `gstack:/autoplan` — 多视角审核
+- `Superpowers:subagent-driven-development` — 子智能体开发
+- `Superpowers:test-driven-development` — TDD 测试
+- `gstack:/review` — 代码审查
+- `gstack:/ship` — 发布流水线
+- `gstack:/canary` — 上线后监控
+
 ### 问题解决原则
 
 发现问题后，先解释清楚**原因**，再给出**解决方案**，让用户理解问题所在。
@@ -394,16 +406,22 @@ import-linter lint
 
 ### 函数/方法注释规范
 
-所有函数和方法需要提供 docstring 说明参数和返回值：
+所有函数和方法需要提供 docstring 说明参数、返回值说明、功能说明：
 
 ```python
 def query_database(name, database, env):
     """
-    通过name, database, env获取数据库配置列表
-    :param name: 数据库名称
-    :param database: 数据库名
-    :param env: 环境
-    :return:
+    xxxx
+    Args:
+        name: xxxx
+        database: xxxx
+        env: xxxx
+    Returns:
+        dict: xxxx
+        功能说明:
+            1. xxxx
+            2. xxx
+            3. xxx
     """
 ```
 
